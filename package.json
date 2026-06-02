@@ -1,0 +1,53 @@
+{
+  "name": "cia-data-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bahá'í Centres of Intense Activity Data Collection App",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "electron:dev": "concurrently \"vite\" \"electron electron/main.js\"",
+    "electron:build": "vite build && electron-builder"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "vite": "^5.3.1"
+  },
+  "build": {
+    "appId": "com.cia.dataapp",
+    "productName": "CIA Data App",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": ["dist/**/*", "electron/**/*"],
+    "mac": {
+      "icon": "public/icon.png",
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "icon": "public/icon.png",
+      "target": "nsis"
+    },
+    "linux": {
+      "icon": "public/icon.png",
+      "target": "AppImage"
+    }
+  }
+}
