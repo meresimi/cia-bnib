@@ -23,7 +23,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # cache: 'npm' removed — requires package-lock.json which is gitignored.
+          # If you commit package-lock.json in the future, re-enable this line.
 
       # ── 3. Java / Android SDK ─────────────────────────────────────────────────
       - name: Set up JDK 17
@@ -43,8 +44,11 @@ jobs:
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
       # ── 4. Install JS dependencies ────────────────────────────────────────────
+      # Using `npm install` instead of `npm ci` because the repo does not
+      # include a package-lock.json.  `npm ci` requires a lock file and will
+      # fail without one.  `npm install` resolves and installs fresh each run.
       - name: Install npm dependencies
-        run: npm ci
+        run: npm install
 
       # ── 5. Build React/Vite web app ───────────────────────────────────────────
       - name: Build Vite web app
