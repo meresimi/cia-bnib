@@ -67,15 +67,28 @@ jobs:
       # ── 10. Build debug APK ───────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --info 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
+      - name: Show APK output directory (debug)
+        if: always()
+        run: |
+          echo "=== Gradle build outputs ==="
+          find android/app/build/outputs -type f 2>/dev/null || echo "No outputs directory found"
+          echo "=== Last 50 lines of build log ==="
+          tail -50 android/build.log 2>/dev/null || echo "No build log found" 
 
       # ── 11. Rename APK ────────────────────────────────────────────────────────
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
-          APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          APK=$(find android/app/build/outputs/apk -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "ERROR: No APK found. Build may have failed."
+            find android/app/build -type f 2>/dev/null | head -20
+            exit 1
+          fi
           echo "Found APK: $APK"
           mv "$APK" "android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk"
           echo "APK_NAME=CIA-DataApp-${DATE}-debug" >> $GITHUB_ENV
