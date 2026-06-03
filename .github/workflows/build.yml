@@ -61,16 +61,9 @@ jobs:
       - name: Capacitor sync to Android
         run: npx cap sync android
 
-      # ── 7. Copy icon assets ────────────────────────────────────────────────────
-      - name: Copy icon assets to Android res
-        run: |
-          cp android/app/src/main/res/mipmap-mdpi/ic_launcher.png         android/app/src/main/res/mipmap-mdpi/ic_launcher.png
-          cp android/app/src/main/res/mipmap-hdpi/ic_launcher.png         android/app/src/main/res/mipmap-hdpi/ic_launcher.png
-          cp android/app/src/main/res/mipmap-xhdpi/ic_launcher.png        android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          cp android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png       android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          cp android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png      android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          echo "Icons verified in place"
-          ls android/app/src/main/res/mipmap-*/
+      # ── 7. Verify icon assets ─────────────────────────────────────────────────
+      - name: Verify icon assets are in place
+        run: ls android/app/src/main/res/mipmap-*/
 
       # ── 8. Make gradlew executable ────────────────────────────────────────────
       - name: Grant Gradle execute permission
