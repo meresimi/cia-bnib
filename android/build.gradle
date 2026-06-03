@@ -1,3 +1,4 @@
+// android/build.gradle  (root / project-level)
 buildscript {
     repositories {
         google()
@@ -9,11 +10,11 @@ buildscript {
     }
 }
 
+apply from: "variables.gradle"
+
 allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://capacitor-cordova-plugins.oss-eu-west-1.aliyuncs.com/' }
     }
 }
