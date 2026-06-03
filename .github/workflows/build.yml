@@ -75,8 +75,9 @@ jobs:
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
-          mv android/app/build/outputs/apk/debug/app-debug.apk \
-             android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk
+          APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          echo "Found APK: $APK"
+          mv "$APK" "android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk"
           echo "APK_NAME=CIA-DataApp-${DATE}-debug" >> $GITHUB_ENV
 
       # ── 12. Upload artifact ───────────────────────────────────────────────────
