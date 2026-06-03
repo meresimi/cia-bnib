@@ -45,7 +45,11 @@ jobs:
       - name: Build Vite web app
         run: npm run build
 
-      # ── 7. Capacitor sync ─────────────────────────────────────────────────────
+      # ── 7. Install Capacitor CLI ──────────────────────────────────────────────
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli@6
+
+      # ── 8. Capacitor sync ─────────────────────────────────────────────────────
       # This is the critical step that:
       #   • copies dist/ into android/app/src/main/assets/public/
       #   • writes android/capacitor-cordova-android-plugins/
@@ -54,18 +58,18 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 8. Make gradlew executable ────────────────────────────────────────────
+      # ── 9. Make gradlew executable ────────────────────────────────────────────
       - name: Grant Gradle execute permission
         run: chmod +x android/gradlew
 
-      # ── 9. Build debug APK ────────────────────────────────────────────────────
+      # ── 10. Build debug APK ────────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --stacktrace
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
-      # ── 10. Rename APK ────────────────────────────────────────────────────────
+      # ── 11. Rename APK ────────────────────────────────────────────────────────
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
@@ -73,7 +77,7 @@ jobs:
              android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk
           echo "APK_NAME=CIA-DataApp-${DATE}-debug" >> $GITHUB_ENV
 
-      # ── 11. Upload artifact ───────────────────────────────────────────────────
+      # ── 12. Upload artifact ───────────────────────────────────────────────────
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -81,7 +85,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
-      # ── 12. GitHub Release ────────────────────────────────────────────────────
+      # ── 13. GitHub Release ────────────────────────────────────────────────────
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
