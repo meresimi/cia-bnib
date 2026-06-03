@@ -27,7 +27,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # ── 4. Android SDK ────────────────────────────────────────────────────────
+      # ── 4. Gradle — pinned to 8.7 to match gradle-wrapper.properties
+      #    This also regenerates the missing gradle-wrapper.jar in the repo
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      # ── 5. Android SDK ────────────────────────────────────────────────────────
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -36,25 +43,20 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
-      # ── 5. Install JS deps ────────────────────────────────────────────────────
-      # `npm install` (not `npm ci`) — repo has no package-lock.json
+      # ── 6. Install JS deps ────────────────────────────────────────────────────
       - name: Install npm dependencies
         run: npm install
 
-      # ── 6. Build web app ──────────────────────────────────────────────────────
+      # ── 7. Build web app ──────────────────────────────────────────────────────
       - name: Build Vite web app
         run: npm run build
 
-      # ── 7. Install Capacitor CLI ──────────────────────────────────────────────
+      # ── 8. Capacitor CLI + sync ───────────────────────────────────────────────
+      # cap sync copies dist/ into android assets and writes the
+      # capacitor-cordova-android-plugins local Gradle subproject
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli@6
 
-      # ── 8. Capacitor sync ─────────────────────────────────────────────────────
-      # This is the critical step that:
-      #   • copies dist/ into android/app/src/main/assets/public/
-      #   • writes android/capacitor-cordova-android-plugins/
-      #   • makes node_modules/@capacitor/android/capacitor available as a
-      #     local Gradle subproject (referenced in settings.gradle)
       - name: Capacitor sync
         run: npx cap sync android
 
@@ -62,7 +64,7 @@ jobs:
       - name: Grant Gradle execute permission
         run: chmod +x android/gradlew
 
-      # ── 10. Build debug APK ────────────────────────────────────────────────────
+      # ── 10. Build debug APK ───────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --stacktrace
@@ -93,12 +95,6 @@ jobs:
           name: "CIA Data App v1.0.${{ github.run_number }}"
           body: |
             ## CIA Data App — Bahá'í Centres of Intense Activity
-
-            ### What's in this release
-            - Data Collection Form for CIAs
-            - Core Activities tracking (Children's Classes, Junior Youth, Study Circles, Devotional Meetings)
-            - Human Resource Development tracking
-            - Summary view with Excel export
 
             ### Install
             1. Download the `.apk` file below
