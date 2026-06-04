@@ -120,14 +120,14 @@ function RadioGroup({ label, value, onChange, options, T }: any) {
 }
 
 // ─── Inline Field: label left, input floats right, same line ─────────────────
-function InlineField({ label, value, onChange, type = "number", T, numeric, width = "40%", error, refCb }: any) {
+function InlineField({ label, value, onChange, type = "number", T, numeric, width = "40%", error, refCb, noPlaceholder }: any) {
   return (
     <div ref={refCb} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "4px 0", borderBottom: `1px solid ${T.border}` }}>
       <label style={{ fontSize: 12, color: T.text, fontWeight: 600, flex: 1, whiteSpace: "nowrap" as const }}>{label}</label>
-      <input type={type} value={value ?? ""} placeholder={numeric ? "Estimated Value" : ""}
+      <input type={type} value={value ?? ""} placeholder={noPlaceholder ? "" : (numeric ? "Estimated Value" : "")}
         onChange={(e: any) => onChange && onChange(e.target.value)}
         style={{
-          background: T.inputBg, border: `1.5px solid ${T.border}`,
+          background: T.inputBg, border: `1.5px solid ${error ? T.danger : T.border}`,
           borderRadius: 6, padding: "7px 10px",
           color: T.text, fontSize: 13, outline: "none",
           width: width, textAlign: "right" as const, flexShrink: 0,
@@ -383,12 +383,12 @@ function DataCollectionForm({ forms, setForms, currentIndex, setCurrentIndex, se
       {/* ── Human Resource Development ── */}
       <SectionHeader T={T} icon="👥">Human Resource Development</SectionHeader>
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        <InlineField T={T} label="Book 1 Completions (last 6 months)" value={form.book1} onChange={(v: string) => update("book1", v)} numeric error={errors.book1} refCb={setRef("book1")} />
-        <InlineField T={T} label="Total Ruhi Completions (last 6 months)" value={form.totalRuhi} onChange={(v: string) => update("totalRuhi", v)} numeric error={errors.totalRuhi} refCb={setRef("totalRuhi")} />
-        <InlineField T={T} label="New Individuals Arising to Serve" value={form.newHumanResources} onChange={(v: string) => update("newHumanResources", v)} numeric error={errors.newHumanResources} refCb={setRef("newHumanResources")} />
-        <InlineField T={T} label="Total Individuals Serving" value={form.totalHumanResources} onChange={(v: string) => update("totalHumanResources", v)} numeric error={errors.totalHumanResources} refCb={setRef("totalHumanResources")} />
-        <InlineField T={T} label="Individuals Who Accompany Other HR" value={form.accompany} onChange={(v: string) => update("accompany", v)} numeric error={errors.accompany} refCb={setRef("accompany")} />
-        <InlineField T={T} label="No. of Pockets" value={form.pockets} onChange={(v: string) => update("pockets", v)} numeric error={errors.pockets} refCb={setRef("pockets")} />
+        <InlineField T={T} label="Book 1 Completions (last 6 months)" value={form.book1} onChange={(v: string) => update("book1", v)} error={errors.book1} refCb={setRef("book1")} width="30%" noPlaceholder />
+        <InlineField T={T} label="Total Ruhi Completions (last 6 months)" value={form.totalRuhi} onChange={(v: string) => update("totalRuhi", v)} error={errors.totalRuhi} refCb={setRef("totalRuhi")} width="30%" noPlaceholder />
+        <InlineField T={T} label="New Individuals Arising to Serve" value={form.newHumanResources} onChange={(v: string) => update("newHumanResources", v)} error={errors.newHumanResources} refCb={setRef("newHumanResources")} width="30%" noPlaceholder />
+        <InlineField T={T} label="Total Individuals Serving" value={form.totalHumanResources} onChange={(v: string) => update("totalHumanResources", v)} error={errors.totalHumanResources} refCb={setRef("totalHumanResources")} width="30%" noPlaceholder />
+        <InlineField T={T} label="Individuals Who Accompany Other HR" value={form.accompany} onChange={(v: string) => update("accompany", v)} error={errors.accompany} refCb={setRef("accompany")} width="30%" noPlaceholder />
+        <InlineField T={T} label="No. of Pockets" value={form.pockets} onChange={(v: string) => update("pockets", v)} error={errors.pockets} refCb={setRef("pockets")} width="30%" noPlaceholder />
       </div>
 
       {/* ── Community Life ── */}
@@ -534,9 +534,17 @@ function Dashboard({ setPage, T }: any) {
   const cards = NAV_ITEMS.filter((n) => n.key !== "dashboard");
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", position: "relative" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "80%", aspectRatio: "1 / 1", backgroundImage: "url('./icon.png')", backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 36 }}>
-        <img src="./icon.png" alt="CIA" style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 14, boxShadow: `0 4px 24px ${T.accent}44` }} />
+      {/* Globe — actual image, large, centred behind text, no border/shadow */}
+      <img src="./icon.png" alt="" aria-hidden="true" style={{
+        position: "absolute", top: 0, left: "50%",
+        transform: "translateX(-50%)",
+        width: "95%", maxWidth: 360,
+        opacity: 0.25,
+        pointerEvents: "none", zIndex: 0,
+        border: "none", boxShadow: "none", borderRadius: 0,
+      }} />
+      {/* Text sits over the globe */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 20, paddingTop: 16 }}>
         <div style={{ fontFamily: "'Cinzel', serif", fontSize: 20, color: T.accentLight, letterSpacing: "0.12em", marginBottom: 6 }}>Bahá'í CIA Data System</div>
         <div style={{ color: T.muted, fontSize: 13 }}>Centres of Intense Activity · Data Collection &amp; Reporting</div>
       </div>
