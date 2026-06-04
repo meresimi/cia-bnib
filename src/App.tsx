@@ -341,15 +341,7 @@ function DataCollectionForm({ forms, setForms, currentIndex, setCurrentIndex, se
         />
       )}
 
-      {/* Record navigator */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, color: T.muted }}>Record {currentIndex + 1} of {forms.length}</span>
-        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-          {forms.map((_: any, i: number) => (
-            <button key={i} onClick={() => setCurrentIndex(i)} style={{ width: 28, height: 28, borderRadius: "50%", background: i === currentIndex ? T.accent : T.surface, border: `1.5px solid ${i === currentIndex ? T.accent : T.border}`, color: i === currentIndex ? "#fff" : T.muted, fontSize: 11, cursor: "pointer", fontWeight: 700 }}>{i + 1}</button>
-          ))}
-        </div>
-      </div>
+
 
       {/* ── General Information ── */}
       <SectionHeader T={T} icon="📋">General Information</SectionHeader>
@@ -534,19 +526,20 @@ function Dashboard({ setPage, T }: any) {
   const cards = NAV_ITEMS.filter((n) => n.key !== "dashboard");
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", position: "relative" }}>
-      {/* Globe — actual image, large, centred behind text, no border/shadow */}
+      {/* Globe watermark — 38% of original (60% reduction), top center */}
       <img src="./icon.png" alt="" aria-hidden="true" style={{
-        position: "absolute", top: 0, left: "50%",
-        transform: "translateX(-50%)",
-        width: "95%", maxWidth: 360,
+        display: "block",
+        margin: "0 auto",
+        width: "38%", maxWidth: 160,
         opacity: 0.25,
         pointerEvents: "none", zIndex: 0,
+        position: "relative",
         border: "none", boxShadow: "none", borderRadius: 0,
       }} />
-      {/* Text sits over the globe */}
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 20, paddingTop: 16 }}>
-        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 20, color: T.accentLight, letterSpacing: "0.12em", marginBottom: 6 }}>Bahá'í CIA Data System</div>
-        <div style={{ color: T.muted, fontSize: 13 }}>Centres of Intense Activity · Data Collection &amp; Reporting</div>
+      {/* Hero text centered below globe */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 24, paddingTop: 10 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 6 }}>Baha'i Faith in the Solomon Islands</div>
+        <div style={{ color: T.muted, fontSize: 13, letterSpacing: "0.04em" }}>Centre of Intense Activity</div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, position: "relative", zIndex: 1 }}>
         {cards.map((item) => <DashboardCard key={item.key} T={T} item={item} onClick={() => setPage(item.key)} />)}
@@ -583,7 +576,6 @@ function SettingsPage({ theme, setTheme, T }: any) {
 function AboutPage({ T }: any) {
   return (
     <div style={{ maxWidth: 560, margin: "40px auto", textAlign: "center" as const }}>
-      <img src="./icon.png" alt="CIA" style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 20, boxShadow: `0 4px 24px ${T.accent}44` }} />
       <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 20 }}>About</div>
       <div style={{ background: T.surface, borderRadius: 12, padding: 24, border: `1.5px solid ${T.border}`, textAlign: "left" as const, lineHeight: 1.9, color: T.text, fontSize: 14 }}>
         <p style={{ marginBottom: 12 }}>This app was created on <strong>3 June 2026</strong> by <strong>Simiona Bobai</strong>, a full stack developer who is Bahá'í of the Honiara community in the Solomon Islands.</p>
@@ -600,6 +592,25 @@ function PlaceholderPage({ title, icon, T }: any) {
       <div style={{ fontSize: 52, marginBottom: 18 }}>{icon}</div>
       <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 10 }}>{title}</div>
       <div style={{ color: T.muted, fontSize: 14 }}>This section is under development.</div>
+    </div>
+  );
+}
+
+// ─── Page Header — section title centered below topbar ───────────────────────
+function PageHeader({ title, T }: any) {
+  return (
+    <div style={{
+      textAlign: "center" as const,
+      padding: "14px 16px 4px",
+      marginBottom: 8,
+    }}>
+      <span style={{
+        fontFamily: "'Cinzel', serif",
+        fontSize: 16,
+        fontWeight: 600,
+        color: T.accentLight,
+        letterSpacing: "0.1em",
+      }}>{title}</span>
     </div>
   );
 }
@@ -689,23 +700,25 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ marginLeft: 12, display: "flex", alignItems: "baseline", gap: 8 }}>
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 15, color: "#FFFFFF", letterSpacing: "0.1em", fontWeight: 600 }}>CIA</span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", letterSpacing: "0.05em" }}>Data System</span>
+        <div style={{ flex: 1, textAlign: "center" as const }}>
+          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 15, color: "#FFFFFF", letterSpacing: "0.1em", fontWeight: 600 }}>CIA Solomon Islands</span>
         </div>
-        <div style={{ flex: 1, textAlign: "center" as const, fontSize: 12, color: "rgba(255,255,255,0.85)", letterSpacing: "0.06em" }}>{currentItem?.label}</div>
-        <img src="./icon.png" alt="CIA" style={{ width: 36, height: 36, borderRadius: 8, boxShadow: "0 2px 10px #00000044", objectFit: "cover", flexShrink: 0 }} />
+        <img src="./icon.png" alt="CIA" style={{ width: 36, height: 36, border: "none", boxShadow: "none", borderRadius: 0, objectFit: "contain", flexShrink: 0 }} />
       </header>
 
       {/* ── Content ── */}
-      <main style={{ flex: 1, padding: "24px 16px", animation: "slideUp 0.2s ease", background: T.bg }}>
-        {page === "dashboard"  && <Dashboard T={T} setPage={navigateTo} />}
-        {page === "form"       && <DataCollectionForm T={T} forms={forms} setForms={setForms} currentIndex={currentFormIndex} setCurrentIndex={setCurrentFormIndex} setPage={navigateTo} />}
-        {page === "summary"    && <Summary T={T} forms={forms} />}
-        {page === "cycle"      && <PlaceholderPage T={T} title="Cycle Report" icon="🔄" />}
-        {page === "resources"  && <PlaceholderPage T={T} title="Resources" icon="📚" />}
-        {page === "settings"   && <SettingsPage T={T} theme={theme} setTheme={setThemeKey} />}
-        {page === "about"      && <AboutPage T={T} />}
+      <main style={{ flex: 1, padding: "0 0 24px", animation: "slideUp 0.2s ease", background: T.bg }}>
+        {/* Section header below topbar for all non-dashboard pages */}
+        {page !== "dashboard" && <PageHeader T={T} title={NAV_ITEMS.find((n) => n.key === page)?.label ?? ""} />}
+        <div style={{ padding: "0 16px" }}>
+          {page === "dashboard"  && <Dashboard T={T} setPage={navigateTo} />}
+          {page === "form"       && <DataCollectionForm T={T} forms={forms} setForms={setForms} currentIndex={currentFormIndex} setCurrentIndex={setCurrentFormIndex} setPage={navigateTo} />}
+          {page === "summary"    && <Summary T={T} forms={forms} />}
+          {page === "cycle"      && <PlaceholderPage T={T} title="Cycle Report" icon="🔄" />}
+          {page === "resources"  && <PlaceholderPage T={T} title="Resources" icon="📚" />}
+          {page === "settings"   && <SettingsPage T={T} theme={theme} setTheme={setThemeKey} />}
+          {page === "about"      && <AboutPage T={T} />}
+        </div>
       </main>
     </div>
   );
