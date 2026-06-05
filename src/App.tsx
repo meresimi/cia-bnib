@@ -423,11 +423,123 @@ function DataCollectionForm({ forms, setForms, currentIndex, setCurrentIndex, se
 }
 
 // ─── Summary ──────────────────────────────────────────────────────────────────
+function StatPill({ label, value, T }: any) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${T.border}` }}>
+      <span style={{ fontSize: 12, color: T.muted }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{value ?? "—"}</span>
+    </div>
+  );
+}
+
+function ActivityMini({ label, values, T }: any) {
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: T.accent, textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 3 }}>{label}</div>
+      <div style={{ display: "flex", gap: 6 }}>
+        {[["No", values.no], ["Att", values.att], ["FoF", values.fof]].map(([k, v]) => (
+          <div key={k} style={{ flex: 1, background: T.bg, borderRadius: 6, padding: "4px 6px", textAlign: "center" as const, border: `1px solid ${T.border}` }}>
+            <div style={{ fontSize: 9, color: T.muted }}>{k}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{v || 0}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function YesNo({ value, T }: any) {
+  const yes = value === "Yes";
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, color: yes ? T.success : T.danger, background: yes ? `${T.success}18` : `${T.danger}18`, borderRadius: 4, padding: "2px 7px" }}>
+      {value || "—"}
+    </span>
+  );
+}
+
+function CIACard({ f, T }: any) {
+  const [expanded, setExpanded] = useState(false);
+  const t = calcTotals(f.activities);
+  return (
+    <div style={{ background: T.card, borderRadius: 12, border: `1.5px solid ${T.border}`, marginBottom: 16, overflow: "hidden", boxShadow: `0 2px 8px ${T.border}44` }}>
+      {/* Card header */}
+      <div onClick={() => setExpanded((v) => !v)} style={{ padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg, ${T.accent}11, transparent)` }}>
+        <div>
+          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 700, color: T.accentLight, letterSpacing: "0.06em" }}>{f.cia || "Unnamed CIA"}</div>
+          <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{f.cluster || "—"} · {f.region || "—"} · {f.ruralUrban || "—"}</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ textAlign: "center" as const }}>
+            <div style={{ fontSize: 9, color: T.muted, textTransform: "uppercase" as const }}>Total Acts</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: T.accent }}>{t.no}</div>
+          </div>
+          <div style={{ fontSize: 18, color: T.muted, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>⌄</div>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ padding: "14px 16px" }}>
+          {/* Community size */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.teal, textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 8 }}>Community</div>
+          <StatPill T={T} label="General Population (est.)" value={f.generalPopulation} />
+          <StatPill T={T} label="Total Households" value={f.totalHouseholds} />
+          <StatPill T={T} label="Individuals Connected" value={f.individualsConnected} />
+          <StatPill T={T} label="Households Connected" value={f.householdsConnected} />
+
+          {/* Core Activities */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.teal, textTransform: "uppercase" as const, letterSpacing: "0.08em", margin: "14px 0 8px" }}>Core Activities</div>
+          <ActivityMini T={T} label="Children's Classes" values={f.activities.children} />
+          <ActivityMini T={T} label="Junior Youth Groups" values={f.activities.juniorYouth} />
+          <ActivityMini T={T} label="Study Circles" values={f.activities.studyCircle} />
+          <ActivityMini T={T} label="Devotional Meetings" values={f.activities.devotional} />
+          <div style={{ background: `${T.accent}11`, borderRadius: 8, padding: "8px 10px", marginTop: 6, border: `1px solid ${T.accent}33` }}>
+            <ActivityMini T={T} label="Total Activities" values={t} />
+          </div>
+
+          {/* Human Resources */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.teal, textTransform: "uppercase" as const, letterSpacing: "0.08em", margin: "14px 0 8px" }}>Human Resource Development</div>
+          <StatPill T={T} label="Book 1 Completions (last 6 months)" value={f.book1} />
+          <StatPill T={T} label="Total Ruhi Completions (last 6 months)" value={f.totalRuhi} />
+          <StatPill T={T} label="New Individuals Arising to Serve" value={f.newHumanResources} />
+          <StatPill T={T} label="Total Individuals Serving" value={f.totalHumanResources} />
+          <StatPill T={T} label="Individuals Who Accompany Other HR" value={f.accompany} />
+          <StatPill T={T} label="No. of Pockets" value={f.pockets} />
+
+          {/* Community Life */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.teal, textTransform: "uppercase" as const, letterSpacing: "0.08em", margin: "14px 0 8px" }}>Community Life & Indicators</div>
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+            {[
+              ["Regular Undertakings", f.regularUndertakings],
+              ["Local Assembly", f.localAssembly],
+              ["Social Action", f.socialAction],
+              ["Local Leaders", f.localLeaders],
+              ["Spiritual Health", f.spiritualHealth],
+            ].map(([label, val]) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 10, color: T.muted, textAlign: "center" as const }}>{label}</div>
+                <YesNo T={T} value={val} />
+              </div>
+            ))}
+          </div>
+
+          {/* Comments */}
+          {f.comments && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.teal, textTransform: "uppercase" as const, letterSpacing: "0.08em", margin: "14px 0 6px" }}>Comments</div>
+              <div style={{ fontSize: 12, color: T.text, background: T.surface, borderRadius: 8, padding: "10px 12px", border: `1px solid ${T.border}`, lineHeight: 1.6 }}>{f.comments}</div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Summary({ forms, T }: any) {
   const [search, setSearch] = useState("");
   const filtered = forms.filter((f: any) =>
-    f.cia.toLowerCase().includes(search.toLowerCase()) ||
-    f.cluster.toLowerCase().includes(search.toLowerCase()) ||
+    (f.cia||"").toLowerCase().includes(search.toLowerCase()) ||
+    (f.cluster||"").toLowerCase().includes(search.toLowerCase()) ||
     (f.region||"").toLowerCase().includes(search.toLowerCase())
   );
   const exportToExcel = () => {
@@ -452,50 +564,21 @@ function Summary({ forms, T }: any) {
     XLSX.writeFile(wb, "Centre_of_Intense_Activity_Export.xlsx");
   };
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-        <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Search CIA / Cluster…"
-          style={{ flex: 1, minWidth: 180, padding: "9px 16px", background: T.inputBg, border: `1.5px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 13, outline: "none" }}
+    <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" as const }}>
+        <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Search CIA / Cluster / Region…"
+          style={{ flex: 1, minWidth: 160, padding: "9px 14px", background: T.inputBg, border: `1.5px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 13, outline: "none" }}
           onFocus={(e: any) => e.target.style.borderColor = T.accent}
           onBlur={(e: any) => e.target.style.borderColor = T.border}
         />
-        <button onClick={exportToExcel} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 18px", borderRadius: 8, background: T.success, border: "none", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>⬇ Export to Excel</button>
+        <button onClick={exportToExcel} style={{ padding: "9px 16px", borderRadius: 8, background: T.success, border: "none", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" as const }}>⬇ Export Excel</button>
       </div>
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", color: T.muted, padding: 60, fontSize: 14, fontStyle: "italic" }}>No records found. Add entries via the Data Collection Form.</div>
+        <div style={{ textAlign: "center" as const, color: T.muted, padding: 60, fontSize: 14, fontStyle: "italic" }}>No records found. Add entries via the Data Collection Form.</div>
       ) : (
-        <div style={{ overflowX: "auto", borderRadius: 10, border: `1.5px solid ${T.border}` }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: T.surface }}>
-                {["Region","Cluster","CIA","Rural/Urban","Pop.","Individuals","CC","JY","SC","DM","Total Act.","Total HR","Comments"].map((h) => (
-                  <th key={h} style={{ padding: "10px 12px", textAlign: "left" as const, color: T.accent, fontWeight: 700, letterSpacing: "0.06em", borderBottom: `2px solid ${T.border}`, whiteSpace: "nowrap" as const, fontSize: 11 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((f: any, i: number) => {
-                const t = calcTotals(f.activities);
-                return (
-                  <tr key={f.id} style={{ background: i % 2 === 0 ? T.card : T.surface }}>
-                    {[f.region||"—",f.cluster||"—",f.cia||"—",f.ruralUrban||"—",f.generalPopulation||"—",f.individualsConnected||"—",
-                      `${f.activities.children.no||0}/${f.activities.children.att||0}`,
-                      `${f.activities.juniorYouth.no||0}/${f.activities.juniorYouth.att||0}`,
-                      `${f.activities.studyCircle.no||0}/${f.activities.studyCircle.att||0}`,
-                      `${f.activities.devotional.no||0}/${f.activities.devotional.att||0}`,
-                      `${t.no}/${t.att}`,f.totalHumanResources||"—",
-                      f.comments ? f.comments.substring(0,28)+(f.comments.length>28?"…":"") : "—",
-                    ].map((cell, ci) => (
-                      <td key={ci} style={{ padding: "9px 12px", color: T.text, borderBottom: `1px solid ${T.border}`, whiteSpace: "nowrap" as const }}>{cell}</td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        filtered.map((f: any) => <CIACard key={f.id} f={f} T={T} />)
       )}
-      <div style={{ marginTop: 12, fontSize: 12, color: T.muted }}>Showing {filtered.length} of {forms.length} record{forms.length !== 1 ? "s" : ""}</div>
+      <div style={{ marginTop: 4, fontSize: 12, color: T.muted }}>Showing {filtered.length} of {forms.length} record{forms.length !== 1 ? "s" : ""}</div>
     </div>
   );
 }
@@ -576,12 +659,70 @@ function SettingsPage({ theme, setTheme, T }: any) {
 function AboutPage({ T }: any) {
   return (
     <div style={{ maxWidth: 560, margin: "40px auto", textAlign: "center" as const }}>
-      <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 20 }}>About</div>
       <div style={{ background: T.surface, borderRadius: 12, padding: 24, border: `1.5px solid ${T.border}`, textAlign: "left" as const, lineHeight: 1.9, color: T.text, fontSize: 14 }}>
         <p style={{ marginBottom: 12 }}>This app was created on <strong>3 June 2026</strong> by <strong>Simiona Bobai</strong>, a full stack developer who is Bahá'í of the Honiara community in the Solomon Islands.</p>
         <p style={{ marginBottom: 12 }}>This app is meant to help the <strong>National Institute Board Admin</strong> aide in her work to gather information for the Councillors.</p>
         <p style={{ marginBottom: 0, color: T.muted, fontSize: 12, borderTop: `1px solid ${T.border}`, paddingTop: 14, marginTop: 14 }}>Version 1.0.0 · CIA Data System · 2026</p>
       </div>
+    </div>
+  );
+}
+
+const RESOURCES = [
+  {
+    title: "Riḍván 2023 – To the Bahá'ís of the World",
+    snippet: "Witness, for instance, those centres of intense activity where the inhabitants have…",
+    source: "The Universal House of Justice / Riḍván 2023 – To the Bahá'ís of the World",
+    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20230420_001/1#010079064",
+  },
+  {
+    title: "28 November 2023 – To the Bahá'ís of the World",
+    snippet: "neighbourhoods that are centres of intense activity, a community emerges with … complementary and mutually reinforcing activities that welcome all and seek to uplift…",
+    source: "The Universal House of Justice / 28 November 2023 – To the Bahá'ís of the World",
+    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20231128_001/1#289419662",
+  },
+  {
+    title: "31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "evident in the cluster's centres of intense activity—not only where participation … those involved in the pattern of activity in third milestone clusters…",
+    source: "The Universal House of Justice / 31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20251231_001/1",
+  },
+  {
+    title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "a number of flourishing centres of intense activity, efforts being made across … intense activity occurring in specific neighbourhoods … represent a large proportion of all the activity…",
+    source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20211230_001/1",
+  },
+];
+
+function ResourceCard({ item, T }: any) {
+  return (
+    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+      <div style={{
+        background: T.card, borderRadius: 10, padding: "16px 16px 14px",
+        marginBottom: 14, border: `1.5px solid ${T.border}`,
+        boxShadow: `0 2px 6px ${T.border}44`, cursor: "pointer",
+        transition: "border-color 0.2s, box-shadow 0.2s",
+      }}
+        onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.boxShadow = `0 4px 16px ${T.accent}22`; }}
+        onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.boxShadow = `0 2px 6px ${T.border}44`; }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: T.accent, lineHeight: 1.4, marginBottom: 6 }}>{item.title}</div>
+        <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, marginBottom: 8 }}>
+          {item.snippet.split(/(\*\*.*?\*\*)/).map((part: string, i: number) =>
+            part.startsWith("**") ? <strong key={i}>{part.replace(/\*\*/g,"")}</strong> : part
+          )}
+        </div>
+        <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.4 }}>{item.source}</div>
+      </div>
+    </a>
+  );
+}
+
+function ResourcesPage({ T }: any) {
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto" }}>
+      {RESOURCES.map((item, i) => <ResourceCard key={i} item={item} T={T} />)}
     </div>
   );
 }
@@ -715,7 +856,7 @@ export default function App() {
           {page === "form"       && <DataCollectionForm T={T} forms={forms} setForms={setForms} currentIndex={currentFormIndex} setCurrentIndex={setCurrentFormIndex} setPage={navigateTo} />}
           {page === "summary"    && <Summary T={T} forms={forms} />}
           {page === "cycle"      && <PlaceholderPage T={T} title="Cycle Report" icon="🔄" />}
-          {page === "resources"  && <PlaceholderPage T={T} title="Resources" icon="📚" />}
+          {page === "resources"  && <ResourcesPage T={T} />}
           {page === "settings"   && <SettingsPage T={T} theme={theme} setTheme={setThemeKey} />}
           {page === "about"      && <AboutPage T={T} />}
         </div>
