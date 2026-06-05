@@ -744,12 +744,12 @@ const RESOURCES = [
 ];
 
 // ─── In-app document reader ──────────────────────────────────────────────────
-import docsData from "./documents.json";
+import { sharedCss, documents } from "./documents";
 
 function DocumentReader({ fileKey, paraIndex, onClose, T }: any) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const doc = (docsData as any).documents[fileKey] || "";
-  const css = (docsData as any).sharedCss || "";
+  const doc = documents[fileKey] || "";
+  const css = sharedCss;
 
   // Inject shared CSS + highlight target paragraph, then scroll to it
   const fullHtml = doc
