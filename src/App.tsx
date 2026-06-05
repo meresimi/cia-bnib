@@ -673,57 +673,161 @@ const RESOURCES = [
     title: "Riḍván 2023 – To the Bahá'ís of the World",
     snippet: "Witness, for instance, those centres of intense activity where the inhabitants have…",
     source: "The Universal House of Justice / Riḍván 2023 – To the Bahá'ís of the World",
-    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20230420_001/1#010079064",
+    fileKey: "20230430", paraIndex: 2,
   },
   {
-    title: "28 November 2023 – To the Bahá'ís of the World",
-    snippet: "neighbourhoods that are centres of intense activity, a community emerges with … complementary and mutually reinforcing activities that welcome all and seek to uplift…",
-    source: "The Universal House of Justice / 28 November 2023 – To the Bahá'ís of the World",
-    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20231128_001/1#289419662",
+    title: "28 November 2023 - To the Bahá'ís of the World",
+    snippet: "neighbourhoods that are centres of intense activity, a community emerges with … attempt to differentiate those areas of activity in which the individual can best exercise … complementary and mutually reinforcing activities that welcome all and seek to uplift",
+    source: "The Universal House of Justice / 28 November 2023 - To the Bahá'ís of the World",
+    fileKey: "20231128", paraIndex: 41,
   },
   {
     title: "31 December 2025 – To the Conference of the Continental Boards of Counsellors",
-    snippet: "evident in the cluster's centres of intense activity—not only where participation … those involved in the pattern of activity in third milestone clusters…",
+    snippet: "evident in the cluster's centres of intense activity—not only where participation … those involved in the pattern of activity in third milestone clusters, even … attracted to the programmes and activities of the community. There is a rise",
     source: "The Universal House of Justice / 31 December 2025 – To the Conference of the Continental Boards of Counsellors",
-    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20251231_001/1",
+    fileKey: "20251231", paraIndex: 4,
+  },
+  {
+    title: "31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "been passed and particular centres of intense activity have gained strength, the",
+    source: "The Universal House of Justice / 31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20251231", paraIndex: 6,
   },
   {
     title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
-    snippet: "a number of flourishing centres of intense activity, efforts being made across … intense activity occurring in specific neighbourhoods … represent a large proportion of all the activity…",
+    snippet: "a number of flourishing centres of intense activity, efforts being made across … To have come this far implies intense activity occurring in specific neighbourhoods … represent a large proportion of all the activity that is occurring. We also acknowledge",
     source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
-    url: "https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/20211230_001/1",
+    fileKey: "20211230", paraIndex: 13,
+  },
+  {
+    title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "adjoining clusters and within centres of intense activity. Individuals with a depth … look to the International Teaching Centre to organize what has been learned and … experience in the promotion of institute activities are serving as resource persons,",
+    source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20211230", paraIndex: 14,
+  },
+  {
+    title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "closely the development of any centres of intense activity in the locality, especially … the more the intensification of activity requires organizational arrangements … welcomed into the embrace of Bahá'í activities, and where the complexity of an Assembly's",
+    source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20211230", paraIndex: 27,
+  },
+  {
+    title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "complexity involved. Within each centre of intense activity, collaborative arrangements … locations begin to participate in Bahá'í activities in large numbers, more consideration … who organize community-building activities among themselves with a view to widening",
+    source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20211230", paraIndex: 38,
+  },
+  {
+    title: "Riḍván 2023 – To the Bahá'ís of the World",
+    snippet: "Witness, for instance, those centres of intense activity where the inhabitants have…",
+    source: "The Universal House of Justice / Riḍván 2023 – To the Bahá'ís of the World",
+    fileKey: "20230430", paraIndex: 2,
+  },
+  {
+    title: "28 November 2023 - To the Bahá'ís of the World",
+    snippet: "neighbourhoods that are centres of intense activity, a community emerges with … attempt to differentiate those areas of activity in which the individual can best exercise … complementary and mutually reinforcing activities that welcome all and seek to uplift",
+    source: "The Universal House of Justice / 28 November 2023 - To the Bahá'ís of the World",
+    fileKey: "20231128", paraIndex: 41,
+  },
+  {
+    title: "31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "evident in the cluster's centres of intense activity—not only where participation … those involved in the pattern of activity in third milestone clusters, even … attracted to the programmes and activities of the community. There is a rise",
+    source: "The Universal House of Justice / 31 December 2025 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20251231", paraIndex: 4,
+  },
+  {
+    title: "30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    snippet: "a number of flourishing centres of intense activity, efforts being made across … To have come this far implies intense activity occurring in specific neighbourhoods … represent a large proportion of all the activity that is occurring. We also acknowledge",
+    source: "The Universal House of Justice / 30 December 2021 – To the Conference of the Continental Boards of Counsellors",
+    fileKey: "20211230", paraIndex: 13,
   },
 ];
 
-function ResourceCard({ item, T }: any) {
+// ─── In-app document reader ──────────────────────────────────────────────────
+import docsData from "./documents.json";
+
+function DocumentReader({ fileKey, paraIndex, onClose, T }: any) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const doc = (docsData as any).documents[fileKey] || "";
+  const css = (docsData as any).sharedCss || "";
+
+  // Inject shared CSS + highlight target paragraph, then scroll to it
+  const fullHtml = doc
+    .replace(/<\/head>/, `<style>${css}
+      #p${paraIndex} {
+        background: #fff3cd;
+        border-left: 4px solid #c8973a;
+        padding-left: 12px;
+        border-radius: 0 4px 4px 0;
+        scroll-margin-top: 80px;
+      }
+    </style></head>`)
+    + `<script>
+        window.onload = function() {
+          var el = document.getElementById('p${paraIndex}');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+      </script>`;
+
   return (
-    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-      <div style={{
-        background: T.card, borderRadius: 10, padding: "16px 16px 14px",
-        marginBottom: 14, border: `1.5px solid ${T.border}`,
-        boxShadow: `0 2px 6px ${T.border}44`, cursor: "pointer",
-        transition: "border-color 0.2s, box-shadow 0.2s",
-      }}
-        onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.boxShadow = `0 4px 16px ${T.accent}22`; }}
-        onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.boxShadow = `0 2px 6px ${T.border}44`; }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 700, color: T.accent, lineHeight: 1.4, marginBottom: 6 }}>{item.title}</div>
-        <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, marginBottom: 8 }}>
-          {item.snippet.split(/(\*\*.*?\*\*)/).map((part: string, i: number) =>
-            part.startsWith("**") ? <strong key={i}>{part.replace(/\*\*/g,"")}</strong> : part
-          )}
-        </div>
-        <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.4 }}>{item.source}</div>
+    <div style={{ position: "fixed", inset: 0, zIndex: 3000, display: "flex", flexDirection: "column" as const, background: T.bg }}>
+      {/* Reader topbar */}
+      <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", background: T.topbar, boxShadow: "0 2px 8px #00000033", flexShrink: 0 }}>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer", padding: "0 8px 0 0", lineHeight: 1 }}>←</button>
+        <span style={{ flex: 1, color: "#fff", fontSize: 13, fontFamily: "'Cinzel', serif", letterSpacing: "0.06em", textAlign: "center" as const }}>UHJ Message</span>
+        <div style={{ width: 32 }} />
       </div>
-    </a>
+      {/* iFrame renders the full HTML document */}
+      <iframe
+        ref={iframeRef}
+        srcDoc={fullHtml}
+        style={{ flex: 1, border: "none", width: "100%" }}
+        title="UHJ Message"
+      />
+    </div>
+  );
+}
+
+function ResourceCard({ item, onOpen, T }: any) {
+  return (
+    <div onClick={() => onOpen(item)} style={{
+      background: T.card, borderRadius: 10, padding: "16px 16px 14px",
+      marginBottom: 14, border: `1.5px solid ${T.border}`,
+      boxShadow: `0 2px 6px ${T.border}44`, cursor: "pointer",
+      transition: "border-color 0.2s, box-shadow 0.2s",
+    }}
+      onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.boxShadow = `0 4px 16px ${T.accent}22`; }}
+      onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.boxShadow = `0 2px 6px ${T.border}44`; }}
+    >
+      <div style={{ fontSize: 14, fontWeight: 700, color: T.accent, lineHeight: 1.4, marginBottom: 6 }}>{item.title}</div>
+      <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, marginBottom: 8 }}>
+        {item.snippet.split(/(centres? of intense activity)/i).map((part: string, i: number) =>
+          /centres? of intense activity/i.test(part) ? <strong key={i}>{part}</strong> : part
+        )}
+      </div>
+      <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.4, fontStyle: "italic" }}>{item.source}</div>
+    </div>
   );
 }
 
 function ResourcesPage({ T }: any) {
+  const [reader, setReader] = useState<any>(null);
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto" }}>
-      {RESOURCES.map((item, i) => <ResourceCard key={i} item={item} T={T} />)}
-    </div>
+    <>
+      {reader && (
+        <DocumentReader
+          T={T}
+          fileKey={reader.fileKey}
+          paraIndex={reader.paraIndex}
+          onClose={() => setReader(null)}
+        />
+      )}
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        {RESOURCES.map((item, i) => (
+          <ResourceCard key={i} item={item} T={T} onOpen={setReader} />
+        ))}
+      </div>
+    </>
   );
 }
 
