@@ -767,7 +767,13 @@ function DocumentReader({ fileKey, paraIndex, onClose, T }: any) {
     + `<script>
         window.onload = function() {
           var el = document.getElementById('p${paraIndex}');
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.innerHTML = el.innerHTML.replace(
+              /(centres? of intense activit(?:y|ies))/gi,
+              '<strong>$1</strong>'
+            );
+          }
         };
       </script>`;
 
