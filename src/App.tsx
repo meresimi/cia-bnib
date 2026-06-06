@@ -608,21 +608,23 @@ function DashboardCard({ item, onClick, T }: any) {
 function Dashboard({ setPage, T }: any) {
   const cards = NAV_ITEMS.filter((n) => n.key !== "dashboard");
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", position: "relative", paddingTop: 0 }}>
-      {/* Globe watermark — 38% of original (60% reduction), top center */}
-      <img src="./icon.png" alt="" aria-hidden="true" style={{
-        display: "block",
-        margin: "0 auto",
-        width: "38%", maxWidth: 160,
-        opacity: 0.16,
-        pointerEvents: "none", zIndex: 0,
-        position: "relative",
-        border: "none", boxShadow: "none", borderRadius: 0,
-      }} />
-      {/* Hero text centered below globe */}
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 24, paddingTop: 4 }}>
-        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 6 }}>Baha'i Faith in the Solomon Islands</div>
-        <div style={{ color: T.muted, fontSize: 13, letterSpacing: "0.04em" }}>Centre of Intense Activity</div>
+    <div style={{ maxWidth: 680, margin: "0 auto", position: "relative" }}>
+      {/* Hero section: icon as full-width background, text overlaid, flush to top */}
+      <div style={{ position: "relative", width: "100%", marginBottom: 24 }}>
+        {/* Background globe — full width, centered, low opacity */}
+        <img src="./icon.png" alt="" aria-hidden="true" style={{
+          position: "absolute", top: 0, left: "50%",
+          transform: "translateX(-50%)",
+          width: "72%", maxWidth: 320,
+          opacity: 0.16,
+          pointerEvents: "none", zIndex: 0,
+          border: "none", boxShadow: "none", borderRadius: 0,
+        }} />
+        {/* Hero text overlaid on top of the globe */}
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, paddingTop: 28, paddingBottom: 28 }}>
+          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 6 }}>Baha'i Faith in the Solomon Islands</div>
+          <div style={{ color: T.muted, fontSize: 13, letterSpacing: "0.04em" }}>Centre of Intense Activity</div>
+        </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, position: "relative", zIndex: 1 }}>
         {cards.map((item) => <DashboardCard key={item.key} T={T} item={item} onClick={() => setPage(item.key)} />)}
