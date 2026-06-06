@@ -40,7 +40,11 @@ jobs:
       - name: Install Android SDK platform + build tools
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          # platform-31 is required: capacitor-android's splash screen styles
+          # reference android:attr/windowSplashScreenIconAnimationDuration which
+          # is an Android 12 (API 31) attribute. Without platform-31 installed,
+          # AAPT2 cannot resolve it even when compileSdk is 34.
+          sdkmanager "platforms;android-34" "platforms;android-31" "build-tools;34.0.0" "platform-tools"
 
       # ── 6. Install JS deps ────────────────────────────────────────────────────
       - name: Install npm dependencies
@@ -57,22 +61,13 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 9. Patch Android config ───────────────────────────────────────────────
-      # Three issues fixed here:
-      # a) AGP 8.3.2 + Gradle 8.7 is unsupported → bump AGP to 8.5.2
-      # b) core-splashscreen 1.0.1 uses android:attr/windowSplashScreenIconAnimationDuration
-      #    which requires minSdk 31, but the app has minSdk 22 → raise minSdk to 31
-      #    (Android 12+, covers 95%+ of active devices as of 2025)
-      - name: Patch AGP version and minSdk
+      # ── 9. Patch AGP version ──────────────────────────────────────────────────
+      # AGP 8.3.2 + Gradle 8.7 is an unsupported combination → bump to 8.5.2
+      - name: Patch AGP version to 8.5.2
         run: |
           sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
             android/build.gradle
-          sed -i "s/minSdkVersion\s*=\s*[0-9]*/minSdkVersion = 31/" \
-            android/variables.gradle
-          echo "--- android/build.gradle AGP line ---"
           grep "com.android.tools.build" android/build.gradle
-          echo "--- android/variables.gradle minSdk line ---"
-          grep "minSdkVersion" android/variables.gradle
 
       # ── 10. Regenerate the real Gradle wrapper ────────────────────────────────
       - name: Regenerate Gradle wrapper
