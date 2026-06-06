@@ -66,13 +66,22 @@ jobs:
       # AAPT2 can process it cleanly. ImageMagick is pre-installed on ubuntu-latest.
       - name: Resize splash drawable
         run: |
-          SPLASH=android/app/src/main/res/drawable/splash.png
-          if [ -f "$SPLASH" ]; then
-            convert "$SPLASH" -resize 1080x1080\> "$SPLASH"
-            echo "Resized splash.png: $(du -sh $SPLASH | cut -f1)"
-          else
-            echo "No splash.png found, skipping"
-          fi
+          python3 - <<'EOF'
+          import os
+          from PIL import Image
+          path = "android/app/src/main/res/drawable/splash.png"
+          if os.path.exists(path):
+              img = Image.open(path)
+              w, h = img.size
+              if w > 1080 or h > 1080:
+                  img.thumbnail((1080, 1080), Image.LANCZOS)
+                  img.save(path, optimize=True)
+                  print(f"Resized from {w}x{h} to {img.size}, {os.path.getsize(path)//1024}KB")
+              else:
+                  print(f"Splash already {w}x{h}, no resize needed")
+          else:
+              print("No splash.png found, skipping")
+          EOF
 
       # ── 9. Regenerate the real Gradle wrapper ─────────────────────────────────
       # The repo's android/gradlew is a 27-byte stub ("exec gradle "$@"") and
