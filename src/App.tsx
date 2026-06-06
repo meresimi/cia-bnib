@@ -141,36 +141,10 @@ function InlineField({ label, value, onChange, type = "number", T, numeric, widt
 }
 
 function SectionHeader({ children, icon, T }: any) {
-  // Must match the topbar height defined in the root <header>
-  const TOPBAR_H = 58;
-  // Vertical gap: distance from accent strip to top/bottom edge of the sticky bg band
-  const V_PAD = 12;
   return (
-    <div style={{
-      position: "sticky",
-      top: TOPBAR_H,
-      zIndex: 150,
-      // Break out of parent's 16px horizontal padding → bg touches screen edges
-      margin: `24px -16px 16px`,
-      // Same colour as app background — sits one z-layer above it so scrolled
-      // content slides behind this band (and behind the topbar above it)
-      background: T.bg,
-      // Equal top and bottom padding so header is vertically centred in the band
-      padding: `${V_PAD}px 16px`,
-    }}>
-      {/* Visible accent strip */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "10px 16px",
-        background: `linear-gradient(90deg, ${T.accent}22, transparent)`,
-        borderLeft: `3px solid ${T.accent}`,
-        borderRadius: "0 6px 6px 0",
-      }}>
-        {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
-        <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: 13, letterSpacing: "0.1em", color: T.accentLight, fontWeight: 600 }}>{children}</h3>
-      </div>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", margin: "24px 0 16px", background: `linear-gradient(90deg, ${T.accent}22, transparent)`, borderLeft: `3px solid ${T.accent}`, borderRadius: "0 6px 6px 0" }}>
+      {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
+      <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: 13, letterSpacing: "0.1em", color: T.accentLight, fontWeight: 600 }}>{children}</h3>
     </div>
   );
 }
@@ -917,11 +891,22 @@ function PlaceholderPage({ title, icon, T }: any) {
 
 // ─── Page Header — section title centered below topbar ───────────────────────
 function PageHeader({ title, T }: any) {
+  // Topbar height — must match the <header> height in root App
+  const TOPBAR_H = 58;
+  // Equal vertical padding above and below the title text
+  const V_PAD = 14;
   return (
     <div style={{
+      position: "sticky",
+      top: TOPBAR_H,
+      zIndex: 150,
+      // Break out of parent's 16px horizontal padding so bg touches screen edges
+      margin: `0 -16px`,
+      // Same colour as app background — one layer above page content so
+      // scrolled content slides behind this band (and behind the topbar)
+      background: T.bg,
+      padding: `${V_PAD}px 16px`,
       textAlign: "center" as const,
-      padding: "14px 16px 4px",
-      marginBottom: 8,
     }}>
       <span style={{
         fontFamily: "'Cinzel', serif",
