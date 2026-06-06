@@ -899,12 +899,13 @@ function PageHeader({ title, T }: any) {
   return (
     <div style={{
       position: "sticky",
-      top: TOPBAR_H,
+      // <main> is the scroll container; PageHeader sticks to its top edge (0)
+      top: 0,
       zIndex: 150,
       // Break out of parent's 16px horizontal padding so bg touches screen edges
       margin: `0 -16px`,
       // Same colour as app background — one layer above page content so
-      // scrolled content slides behind this band (and behind the topbar)
+      // scrolled content slides behind this band
       background: T.bg,
       padding: `${V_PAD}px 16px`,
       textAlign: "center" as const,
@@ -944,32 +945,34 @@ export default function App() {
 
   // ── Device back button handler via Capacitor (works reliably on Android) ────
   useEffect(() => {
-    let listenerHandle: any;
+    // CapApp.addListener is synchronous in Capacitor 6 — no async needed
+    const listenerHandle = CapApp.addListener("backButton", () => {
+      const currentPage = pageRef.current;
+      const currentReader = readerRef.current;
 
-    const register = async () => {
-      listenerHandle = await CapApp.addListener("backButton", () => {
-        const currentPage = pageRef.current;
-        const currentReader = readerRef.current;
+      if (currentReader) {
+        // Grandchild (DocumentReader) open → close it, stay on Resources
+        setReader(null);
+      } else if (currentPage === "form") {
+        // Form has its own internal back logic (unsaved-changes modal etc.)
+        window.dispatchEvent(new Event("cia-back"));
+      } else if (currentPage === "dashboard") {
+        // Root screen → show exit confirmation modal
+        setShowExitModal(true);
+      } else {
+        // Any other child page → return to Dashboard
+        setPage("dashboard");
+      }
+    });
 
-        if (currentReader) {
-          // Grandchild (DocumentReader) open → close it, stay on Resources
-          setReader(null);
-        } else if (currentPage === "form") {
-          // Form has its own internal back logic (unsaved-changes modal etc.)
-          window.dispatchEvent(new Event("cia-back"));
-        } else if (currentPage === "dashboard") {
-          // Root screen → show exit confirmation
-          setShowExitModal(true);
-        } else {
-          // Any other child page → return to Dashboard
-          setPage("dashboard");
-        }
-      });
-    };
-
-    register();
-    return () => { listenerHandle?.remove(); };
+    // Capacitor returns a PluginListenerHandle — call .remove() to unsubscribe
+    return () => { listenerHandle.then((h: any) => h.remove()); };
   }, []); // ← empty deps: registered once, reads live values via refs
+
+  // ── Ensure ConfirmModal exit actually closes the app via Capacitor ──────────
+  const handleExitApp = () => {
+    CapApp.exitApp();
+  };
 
   // Close menu on outside click
   useEffect(() => {
@@ -986,20 +989,25 @@ export default function App() {
   const currentItem = NAV_ITEMS.find((n) => n.key === page);
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: T.bg }}>
+    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: T.bg, overflow: "hidden" }}>
 
       {/* Exit App Modal */}
       {showExitModal && (
         <ConfirmModal T={T}
           title="Exit App"
           message="Are you sure you want to exit the CIA Data App?"
-          onConfirm={() => { (navigator as any).app?.exitApp?.(); window.close(); }}
+          onConfirm={handleExitApp}
           onCancel={() => setShowExitModal(false)}
         />
       )}
 
       {/* ── Header ── */}
-      <header style={{ height: 58, display: "flex", alignItems: "center", padding: "0 16px", background: T.topbar, borderBottom: `1px solid ${T.topbar}`, position: "sticky", top: 0, zIndex: 200, boxShadow: "0 2px 16px #00000033" }}>
+      <header style={{ display: "flex", alignItems: "center", padding: "0 16px", background: T.topbar, borderBottom: `1px solid ${T.topbar}`, position: "sticky", top: 0, zIndex: 200, boxShadow: "0 2px 16px #00000033",
+        // paddingTop pushes content below the system status bar (time/battery strip)
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        // Total visual height = content row (58px) + status bar inset
+        minHeight: "calc(58px + env(safe-area-inset-top, 0px))",
+      }}>
         <div ref={menuRef} style={{ position: "relative" }}>
           <button onClick={() => setMenuOpen((v) => !v)} style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px", borderRadius: 6, display: "flex", flexDirection: "column", gap: 7 }}>
             {[0,1,2].map((i) => (
@@ -1027,7 +1035,7 @@ export default function App() {
       </header>
 
       {/* ── Content ── */}
-      <main style={{ flex: 1, padding: "0 0 24px", animation: "slideUp 0.2s ease", background: T.bg }}>
+      <main style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0 0 24px", animation: "slideUp 0.2s ease", background: T.bg }}>
         {/* Section header below topbar for all non-dashboard pages */}
         {page !== "dashboard" && <PageHeader T={T} title={NAV_ITEMS.find((n) => n.key === page)?.label ?? ""} />}
         <div style={{ padding: "0 16px" }}>
