@@ -55,8 +55,8 @@ jobs:
             android/build.gradle
 
           cat > android/app/src/main/res/values/styles.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#FFFFFF</item>
         <item name="colorPrimaryDark">#F0F0F0</item>
@@ -73,12 +73,12 @@ jobs:
         <item name="android:windowBackground">@drawable/splash_bg</item>
         <item name="android:windowFullscreen">true</item>
     </style>
-</resources>
-XML
+          </resources>
+          XML
 
           cat > android/app/src/main/res/drawable/splash_bg.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+          <?xml version="1.0" encoding="utf-8"?>
+          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@android:color/white" />
     <item>
         <bitmap
@@ -86,35 +86,35 @@ XML
             android:gravity="center"
             android:tileMode="disabled" />
     </item>
-</layer-list>
-XML
+          </layer-list>
+          XML
 
           mkdir -p android/app/src/main/res/mipmap-anydpi-v26
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background" />
     <foreground>
         <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
     </foreground>
-</adaptive-icon>
-XML
+          </adaptive-icon>
+          XML
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background" />
     <foreground>
         <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
     </foreground>
-</adaptive-icon>
-XML
+          </adaptive-icon>
+          XML
 
           cat > android/app/src/main/res/values/ic_launcher_background.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
-</resources>
-XML
+          </resources>
+          XML
 
           echo "--- styles.xml ---"
           cat android/app/src/main/res/values/styles.xml
