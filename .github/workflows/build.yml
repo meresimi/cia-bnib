@@ -28,9 +28,8 @@ jobs:
           distribution: 'temurin'
 
       # ── 4. Gradle — pinned to 8.7 to match gradle-wrapper.properties
-      #    This also regenerates the missing gradle-wrapper.jar in the repo
       - name: Set up Gradle 8.7
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
@@ -60,9 +59,16 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 9. Make gradlew executable ────────────────────────────────────────────
-      - name: Grant Gradle execute permission
-        run: chmod +x android/gradlew
+      # ── 9. Regenerate the real Gradle wrapper ─────────────────────────────────
+      # The repo's android/gradlew is a 27-byte stub ("exec gradle "$@"") and
+      # gradle-wrapper.jar is missing entirely. We use the system Gradle
+      # (already on PATH from setup-gradle above) to write the real wrapper
+      # scripts and jar, then make gradlew executable.
+      - name: Regenerate Gradle wrapper
+        working-directory: android
+        run: |
+          gradle wrapper --gradle-version 8.7 --distribution-type bin
+          chmod +x gradlew
 
       # ── 10. Build debug APK ───────────────────────────────────────────────────
       - name: Build debug APK
