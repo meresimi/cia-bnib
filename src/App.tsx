@@ -608,25 +608,23 @@ function DashboardCard({ item, onClick, T }: any) {
 function Dashboard({ setPage, T }: any) {
   const cards = NAV_ITEMS.filter((n) => n.key !== "dashboard");
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto" }}>
-      {/* Hero section — icon as background, flush under topbar */}
-      <div style={{ position: "relative", textAlign: "center" as const, padding: "20px 16px 20px", marginBottom: 0, overflow: "hidden" }}>
-        {/* Background icon */}
-        <img src="./icon.png" alt="" aria-hidden="true" style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "70%", maxWidth: 260,
-          opacity: 0.2,
-          pointerEvents: "none", zIndex: 0,
-          border: "none", boxShadow: "none", borderRadius: 0,
-        }} />
-        {/* Hero text overlaid */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 6 }}>Baha'i Faith in the Solomon Islands</div>
-          <div style={{ color: T.muted, fontSize: 13, letterSpacing: "0.04em" }}>Centre of Intense Activity</div>
-        </div>
+    <div style={{ maxWidth: 680, margin: "0 auto", position: "relative", paddingTop: 0 }}>
+      {/* Globe watermark — 38% of original (60% reduction), top center */}
+      <img src="./icon.png" alt="" aria-hidden="true" style={{
+        display: "block",
+        margin: "0 auto",
+        width: "38%", maxWidth: 160,
+        opacity: 0.16,
+        pointerEvents: "none", zIndex: 0,
+        position: "relative",
+        border: "none", boxShadow: "none", borderRadius: 0,
+      }} />
+      {/* Hero text centered below globe */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center" as const, marginBottom: 24, paddingTop: 4 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: T.accentLight, letterSpacing: "0.1em", marginBottom: 6 }}>Baha'i Faith in the Solomon Islands</div>
+        <div style={{ color: T.muted, fontSize: 13, letterSpacing: "0.04em" }}>Centre of Intense Activity</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, padding: "0 16px", position: "relative", zIndex: 1 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, position: "relative", zIndex: 1 }}>
         {cards.map((item) => <DashboardCard key={item.key} T={T} item={item} onClick={() => setPage(item.key)} />)}
       </div>
     </div>
@@ -928,9 +926,9 @@ export default function App() {
       {/* ── Header ── */}
       <header style={{ height: 58, display: "flex", alignItems: "center", padding: "0 16px", background: T.topbar, borderBottom: `1px solid ${T.topbar}`, position: "sticky", top: 0, zIndex: 200, boxShadow: "0 2px 16px #00000033" }}>
         <div ref={menuRef} style={{ position: "relative" }}>
-          <button onClick={() => setMenuOpen((v) => !v)} style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px", borderRadius: 6, display: "flex", flexDirection: "column", gap: 5 }}>
+          <button onClick={() => setMenuOpen((v) => !v)} style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px", borderRadius: 6, display: "flex", flexDirection: "column", gap: 7 }}>
             {[0,1,2].map((i) => (
-              <div key={i} style={{ width: 30.8, height: 2, background: "#FFFFFF", borderRadius: 2, transition: "all 0.25s",
+              <div key={i} style={{ width: 31, height: 3, background: "#FFFFFF", borderRadius: 2, transition: "all 0.25s",
                 transform: menuOpen && i===0 ? "rotate(45deg) translate(5px,5px)" : menuOpen && i===1 ? "scaleX(0)" : menuOpen && i===2 ? "rotate(-45deg) translate(5px,-5px)" : "none",
                 opacity: menuOpen && i===1 ? 0 : 1 }} />
             ))}
@@ -948,9 +946,9 @@ export default function App() {
         </div>
 
         <div style={{ flex: 1, textAlign: "center" as const }}>
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 22.5, color: "#FFFFFF", letterSpacing: "0.1em", fontWeight: 600 }}>CIA Solomon Islands</span>
+          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 18, color: "#FFFFFF", letterSpacing: "0.1em", fontWeight: 600 }}>CIA Solomon Islands</span>
         </div>
-        <img src="./icon.png" alt="CIA" style={{ width: 46.8, height: 46.8, border: "none", boxShadow: "none", borderRadius: 0, objectFit: "contain", flexShrink: 0 }} />
+        <img src="./icon.png" alt="CIA" style={{ width: 43, height: 43, border: "none", boxShadow: "none", borderRadius: 0, objectFit: "contain", flexShrink: 0 }} />
       </header>
 
       {/* ── Content ── */}
