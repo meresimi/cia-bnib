@@ -51,8 +51,7 @@ jobs:
 
       - name: Patch AGP, splash and launcher icons
         run: |
-          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \\
-            android/build.gradle
+          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" android/build.gradle
 
           cat > android/app/src/main/res/values/styles.xml << 'XML'
           <?xml version="1.0" encoding="utf-8"?>
