@@ -885,8 +885,7 @@ function ResourceCard({ item, onOpen, T }: any) {
   );
 }
 
-function ResourcesPage({ T }: any) {
-  const [reader, setReader] = useState<any>(null);
+function ResourcesPage({ T, reader, setReader }: any) {
   return (
     <>
       {reader && (
@@ -948,27 +947,44 @@ export default function App() {
   const [showExitModal, setShowExitModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // ── Device back button handler ─────────────────────────────────────────────
+  // ── Lifted grandchild state: DocumentReader (opened from Resources) ─────────
+  const [reader, setReader] = useState<any>(null);
+
+  // ── Refs so the back button handler (registered once) always reads fresh state
+  const pageRef = useRef(page);
+  const readerRef = useRef(reader);
+  useEffect(() => { pageRef.current = page; }, [page]);
+  useEffect(() => { readerRef.current = reader; }, [reader]);
+
+  // ── Device back button handler (registered once — no stale-closure bug) ─────
   useEffect(() => {
-    const handleBackButton = (e: PopStateEvent) => {
-      if (page === "form") {
-        // Delegate to the form's own back handler
+    const handleBackButton = () => {
+      const currentPage = pageRef.current;
+      const currentReader = readerRef.current;
+
+      if (currentReader) {
+        // Grandchild (DocumentReader) open → close it, stay on Resources
+        setReader(null);
+      } else if (currentPage === "form") {
+        // Form has its own internal back logic (unsaved-changes modal etc.)
         window.dispatchEvent(new Event("cia-back"));
-        // Push state again so next back press works
-        window.history.pushState(null, "", window.location.href);
-      } else if (page === "dashboard") {
+      } else if (currentPage === "dashboard") {
+        // Root screen → show exit confirmation
         setShowExitModal(true);
-        window.history.pushState(null, "", window.location.href);
       } else {
+        // Any other child page → return to Dashboard
         setPage("dashboard");
-        window.history.pushState(null, "", window.location.href);
       }
+
+      // Always re-push so the next back press is also intercepted
+      window.history.pushState(null, "", window.location.href);
     };
-    // Push a state so we can intercept popstate
+
+    // Push an initial state immediately so the very first back press is caught
     window.history.pushState(null, "", window.location.href);
     window.addEventListener("popstate", handleBackButton);
     return () => window.removeEventListener("popstate", handleBackButton);
-  }, [page]);
+  }, []); // ← empty deps: registered once, reads live values via refs
 
   // Close menu on outside click
   useEffect(() => {
@@ -1035,7 +1051,7 @@ export default function App() {
           {page === "form"       && <DataCollectionForm T={T} forms={forms} setForms={setForms} currentIndex={currentFormIndex} setCurrentIndex={setCurrentFormIndex} setPage={navigateTo} />}
           {page === "summary"    && <Summary T={T} forms={forms} />}
           {page === "cycle"      && <PlaceholderPage T={T} title="Cycle Report" icon="🔄" />}
-          {page === "resources"  && <ResourcesPage T={T} />}
+          {page === "resources"  && <ResourcesPage T={T} reader={reader} setReader={setReader} />}
           {page === "settings"   && <SettingsPage T={T} theme={theme} setTheme={setThemeKey} />}
           {page === "about"      && <AboutPage T={T} />}
         </div>
