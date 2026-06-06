@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
+import { App as CapApp } from "@capacitor/app";
 
 // ─── Themes ───────────────────────────────────────────────────────────────────
 const THEMES: Record<string, any> = {
@@ -941,34 +942,33 @@ export default function App() {
   useEffect(() => { pageRef.current = page; }, [page]);
   useEffect(() => { readerRef.current = reader; }, [reader]);
 
-  // ── Device back button handler (registered once — no stale-closure bug) ─────
+  // ── Device back button handler via Capacitor (works reliably on Android) ────
   useEffect(() => {
-    const handleBackButton = () => {
-      const currentPage = pageRef.current;
-      const currentReader = readerRef.current;
+    let listenerHandle: any;
 
-      if (currentReader) {
-        // Grandchild (DocumentReader) open → close it, stay on Resources
-        setReader(null);
-      } else if (currentPage === "form") {
-        // Form has its own internal back logic (unsaved-changes modal etc.)
-        window.dispatchEvent(new Event("cia-back"));
-      } else if (currentPage === "dashboard") {
-        // Root screen → show exit confirmation
-        setShowExitModal(true);
-      } else {
-        // Any other child page → return to Dashboard
-        setPage("dashboard");
-      }
+    const register = async () => {
+      listenerHandle = await CapApp.addListener("backButton", () => {
+        const currentPage = pageRef.current;
+        const currentReader = readerRef.current;
 
-      // Always re-push so the next back press is also intercepted
-      window.history.pushState(null, "", window.location.href);
+        if (currentReader) {
+          // Grandchild (DocumentReader) open → close it, stay on Resources
+          setReader(null);
+        } else if (currentPage === "form") {
+          // Form has its own internal back logic (unsaved-changes modal etc.)
+          window.dispatchEvent(new Event("cia-back"));
+        } else if (currentPage === "dashboard") {
+          // Root screen → show exit confirmation
+          setShowExitModal(true);
+        } else {
+          // Any other child page → return to Dashboard
+          setPage("dashboard");
+        }
+      });
     };
 
-    // Push an initial state immediately so the very first back press is caught
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handleBackButton);
-    return () => window.removeEventListener("popstate", handleBackButton);
+    register();
+    return () => { listenerHandle?.remove(); };
   }, []); // ← empty deps: registered once, reads live values via refs
 
   // Close menu on outside click
@@ -981,7 +981,6 @@ export default function App() {
   const navigateTo = (key: string) => {
     setPage(key);
     setMenuOpen(false);
-    window.history.pushState(null, "", window.location.href);
   };
 
   const currentItem = NAV_ITEMS.find((n) => n.key === page);
