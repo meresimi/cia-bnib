@@ -58,67 +58,82 @@ jobs:
         run: npx cap sync android
 
       # ── 9. Patch Android config ───────────────────────────────────────────────
-      # a) AGP 8.3.2 + Gradle 8.7 unsupported → bump to 8.5.2
-      # b) Remove android:windowSplashScreenIconAnimationDuration (API 31 only attr,
-      #    crashes AAPT2 with minSdk=22)
-      # c) Replace splash drawable reference with splash_icon layer-list wrapper
-      #    so Android 12+ rounded-square mask never clips the globe icon
-      # d) Add adaptive icon XMLs so launcher icon appears 30% bigger in frame
-      # e) Add ic_launcher_background color resource
       - name: Patch AGP, splash and launcher icons
         run: |
-          # a) AGP version
+          # a) AGP 8.3.2 + Gradle 8.7 unsupported → bump to 8.5.2
           sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
             android/build.gradle
 
-          # b) Remove API-31-only style attribute
-          sed -i '/android:windowSplashScreenIconAnimationDuration/d' \
-            android/app/src/main/res/values/styles.xml
+          # b) Replace styles.xml entirely.
+          #    The key fix: use Theme.AppCompat.NoActionBar (NOT Theme.SplashScreen)
+          #    for the launch theme. Theme.SplashScreen forces Android 12+ to apply
+          #    a rounded-square mask that clips the globe. By using a plain AppCompat
+          #    theme with android:windowBackground pointing to a layer-list drawable,
+          #    the system never touches the image and shows it full and unclipped.
+          cat > android/app/src/main/res/values/styles.xml << 'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryDark">#F0F0F0</item>
+        <item name="colorAccent">#3C6AA3</item>
+    </style>
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+    </style>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
+XML
 
-          # c) Switch splash to use the layer-list wrapper
-          sed -i 's|@drawable/splash</item>|@drawable/splash_icon</item>|' \
-            android/app/src/main/res/values/styles.xml
+          # c) Create splash_bg.xml — white background + globe centered, no masking
+          cat > android/app/src/main/res/drawable/splash_bg.xml << 'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/white" />
+    <item>
+        <bitmap
+            android:src="@drawable/splash"
+            android:gravity="center"
+            android:tileMode="disabled" />
+    </item>
+</layer-list>
+XML
 
-          # c) Create splash_icon.xml layer-list
-          cat > android/app/src/main/res/drawable/splash_icon.xml << 'XML'
-          <?xml version="1.0" encoding="utf-8"?>
-          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-              <item
-                  android:drawable="@drawable/splash"
-                  android:gravity="center"
-                  android:width="200dp"
-                  android:height="200dp" />
-          </layer-list>
-          XML
-
-          # d) Create adaptive icon XMLs (makes icon 30% bigger in launcher frame)
+          # d) Adaptive icon XMLs — 10% bigger in launcher frame (-5% inset each side)
           mkdir -p android/app/src/main/res/mipmap-anydpi-v26
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'XML'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background" />
-              <foreground>
-                  <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-15%" />
-              </foreground>
-          </adaptive-icon>
-          XML
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground>
+        <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
+    </foreground>
+</adaptive-icon>
+XML
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'XML'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background" />
-              <foreground>
-                  <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-15%" />
-              </foreground>
-          </adaptive-icon>
-          XML
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground>
+        <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
+    </foreground>
+</adaptive-icon>
+XML
 
-          # e) Background color resource
+          # e) Background color for adaptive icon
           cat > android/app/src/main/res/values/ic_launcher_background.xml << 'XML'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <color name="ic_launcher_background">#FFFFFF</color>
-          </resources>
-          XML
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>
+XML
 
           echo "--- styles.xml ---"
           cat android/app/src/main/res/values/styles.xml
