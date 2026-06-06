@@ -1,6 +1,8 @@
 name: Build CIA APK
 
 on:
+  push:
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -10,30 +12,25 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # ── 1. Checkout ───────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Node.js ────────────────────────────────────────────────────────────
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # ── 3. Java ───────────────────────────────────────────────────────────────
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # ── 4. Gradle ─────────────────────────────────────────────────────────────
       - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      # ── 5. Android SDK ────────────────────────────────────────────────────────
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -42,34 +39,23 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
-      # ── 6. Install JS deps ────────────────────────────────────────────────────
       - name: Install npm dependencies
         run: npm install
 
-      # ── 7. Build web app ──────────────────────────────────────────────────────
       - name: Build Vite web app
         run: npm run build
 
-      # ── 8. Capacitor CLI + sync ───────────────────────────────────────────────
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli@6
 
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 9. Patch Android config ───────────────────────────────────────────────
       - name: Patch AGP, splash and launcher icons
         run: |
-          # a) AGP 8.3.2 + Gradle 8.7 unsupported → bump to 8.5.2
           sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
             android/build.gradle
 
-          # b) Replace styles.xml entirely.
-          #    The key fix: use Theme.AppCompat.NoActionBar (NOT Theme.SplashScreen)
-          #    for the launch theme. Theme.SplashScreen forces Android 12+ to apply
-          #    a rounded-square mask that clips the globe. By using a plain AppCompat
-          #    theme with android:windowBackground pointing to a layer-list drawable,
-          #    the system never touches the image and shows it full and unclipped.
           cat > android/app/src/main/res/values/styles.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -92,7 +78,6 @@ jobs:
 </resources>
 XML
 
-          # c) Create splash_bg.xml — white background + globe centered, no masking
           cat > android/app/src/main/res/drawable/splash_bg.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -106,7 +91,6 @@ XML
 </layer-list>
 XML
 
-          # d) Adaptive icon XMLs — 10% bigger in launcher frame (-5% inset each side)
           mkdir -p android/app/src/main/res/mipmap-anydpi-v26
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
@@ -127,7 +111,6 @@ XML
 </adaptive-icon>
 XML
 
-          # e) Background color for adaptive icon
           cat > android/app/src/main/res/values/ic_launcher_background.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -140,14 +123,12 @@ XML
           echo "--- AGP ---"
           grep "com.android.tools.build" android/build.gradle
 
-      # ── 10. Regenerate the real Gradle wrapper ────────────────────────────────
       - name: Regenerate Gradle wrapper
         working-directory: android
         run: |
           gradle wrapper --gradle-version 8.7 --distribution-type bin
           chmod +x gradlew
 
-      # ── 11. Build debug APK ───────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
@@ -162,7 +143,6 @@ XML
           echo "=== Last 30 lines of build log ==="
           tail -30 android/build.log 2>/dev/null || echo "No build log found"
 
-      # ── 12. Rename APK ────────────────────────────────────────────────────────
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
@@ -174,7 +154,6 @@ XML
           mv "$APK" "android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk"
           echo "APK_NAME=CIA-DataApp-${DATE}-debug" >> $GITHUB_ENV
 
-      # ── 13. Upload artifact ───────────────────────────────────────────────────
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -182,7 +161,6 @@ XML
           path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
-      # ── 14. GitHub Release ────────────────────────────────────────────────────
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
