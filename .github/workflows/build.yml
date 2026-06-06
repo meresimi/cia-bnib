@@ -28,7 +28,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -48,10 +47,9 @@ jobs:
 
       - name: Capacitor sync
         run: npx cap sync android
-
       - name: Patch AGP, splash and launcher icons
         run: |
-          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
+          sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \\
             android/build.gradle
 
           cat > android/app/src/main/res/values/styles.xml << 'XML'
@@ -75,7 +73,6 @@ jobs:
     </style>
 </resources>
 XML
-
           cat > android/app/src/main/res/drawable/splash_bg.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -95,21 +92,7 @@ XML
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background" />
     <foreground>
-        <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
-    </foreground>
-</adaptive-icon>
-XML
-          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'XML'
-<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background" />
-    <foreground>
-        <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5%" />
-    </foreground>
-</adaptive-icon>
-XML
-
-          cat > android/app/src/main/res/values/ic_launcher_background.xml << 'XML'
+        <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="-5          cat > android/app/src/main/res/values/ic_launcher_background.xml << 'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
@@ -120,7 +103,6 @@ XML
           cat android/app/src/main/res/values/styles.xml
           echo "--- AGP ---"
           grep "com.android.tools.build" android/build.gradle
-
       - name: Regenerate Gradle wrapper
         working-directory: android
         run: |
@@ -140,7 +122,6 @@ XML
           find android/app/build/outputs -type f 2>/dev/null || echo "No outputs directory found"
           echo "=== Last 30 lines of build log ==="
           tail -30 android/build.log 2>/dev/null || echo "No build log found"
-
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
@@ -158,20 +139,17 @@ XML
           name: ${{ env.APK_NAME }}
           path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: "CIA Data App v1.0.${{ github.run_number }}"
           body: |
-            ## CIA Data App — Bahá'í Centres of Intense Activity
-
+            ## CIA Data App
             ### Install
-            1. Download the `.apk` file below
-            2. Enable **Install from unknown sources** in Android Settings → Security
+            1. Download the .apk file below
+            2. Enable Install from unknown sources in Android Settings
             3. Open the downloaded APK to install
-
             Built from commit `${{ github.sha }}`
           files: android/app/build/outputs/apk/debug/*.apk
           draft: false
