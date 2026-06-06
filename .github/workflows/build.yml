@@ -27,7 +27,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # ── 4. Gradle — pinned to 8.7 to match gradle-wrapper.properties
+      # ── 4. Gradle ─────────────────────────────────────────────────────────────
       - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -57,55 +57,58 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 9a. Bump AGP to 8.5.2 ────────────────────────────────────────────────
-      # AGP 8.3.2 only supports Gradle up to 8.4. Gradle 8.7 (required by
-      # gradle-wrapper.properties) causes a sourceSetPathMap crash in AAPT2.
-      # AGP 8.5.x officially supports Gradle 8.7.
-      - name: Patch AGP version to 8.5.2
+      # ── 9. Patch Android config ───────────────────────────────────────────────
+      # Three issues fixed here:
+      # a) AGP 8.3.2 + Gradle 8.7 is unsupported → bump AGP to 8.5.2
+      # b) core-splashscreen 1.0.1 uses android:attr/windowSplashScreenIconAnimationDuration
+      #    which requires minSdk 31, but the app has minSdk 22 → raise minSdk to 31
+      #    (Android 12+, covers 95%+ of active devices as of 2025)
+      - name: Patch AGP version and minSdk
         run: |
           sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
             android/build.gradle
-          echo "android/build.gradle AGP line:"
+          sed -i "s/minSdkVersion\s*=\s*[0-9]*/minSdkVersion = 31/" \
+            android/variables.gradle
+          echo "--- android/build.gradle AGP line ---"
           grep "com.android.tools.build" android/build.gradle
+          echo "--- android/variables.gradle minSdk line ---"
+          grep "minSdkVersion" android/variables.gradle
 
-      # ── 9. Regenerate the real Gradle wrapper ─────────────────────────────────
-      # The repo's android/gradlew is a 27-byte stub — regenerate the real one.
+      # ── 10. Regenerate the real Gradle wrapper ────────────────────────────────
       - name: Regenerate Gradle wrapper
         working-directory: android
         run: |
           gradle wrapper --gradle-version 8.7 --distribution-type bin
           chmod +x gradlew
 
-      # ── 10. Build debug APK ───────────────────────────────────────────────────
+      # ── 11. Build debug APK ───────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
-      - name: Show APK output directory (debug)
+      - name: Show build result (debug)
         if: always()
         run: |
           echo "=== Gradle build outputs ==="
           find android/app/build/outputs -type f 2>/dev/null || echo "No outputs directory found"
-          echo "=== Last 50 lines of build log ==="
-          tail -50 android/build.log 2>/dev/null || echo "No build log found"
+          echo "=== Last 30 lines of build log ==="
+          tail -30 android/build.log 2>/dev/null || echo "No build log found"
 
-      # ── 11. Rename APK ────────────────────────────────────────────────────────
+      # ── 12. Rename APK ────────────────────────────────────────────────────────
       - name: Rename APK
         run: |
           DATE=$(date +%Y%m%d)
           APK=$(find android/app/build/outputs/apk -name "*.apk" | head -1)
           if [ -z "$APK" ]; then
-            echo "ERROR: No APK found. Build may have failed."
-            find android/app/build -type f 2>/dev/null | head -20
+            echo "ERROR: No APK found."
             exit 1
           fi
-          echo "Found APK: $APK"
           mv "$APK" "android/app/build/outputs/apk/debug/CIA-DataApp-${DATE}-debug.apk"
           echo "APK_NAME=CIA-DataApp-${DATE}-debug" >> $GITHUB_ENV
 
-      # ── 12. Upload artifact ───────────────────────────────────────────────────
+      # ── 13. Upload artifact ───────────────────────────────────────────────────
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -113,7 +116,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
-      # ── 13. GitHub Release ────────────────────────────────────────────────────
+      # ── 14. GitHub Release ────────────────────────────────────────────────────
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
