@@ -40,11 +40,7 @@ jobs:
       - name: Install Android SDK platform + build tools
         run: |
           yes | sdkmanager --licenses || true
-          # platform-31 is required: capacitor-android's splash screen styles
-          # reference android:attr/windowSplashScreenIconAnimationDuration which
-          # is an Android 12 (API 31) attribute. Without platform-31 installed,
-          # AAPT2 cannot resolve it even when compileSdk is 34.
-          sdkmanager "platforms;android-34" "platforms;android-31" "build-tools;34.0.0" "platform-tools"
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
       # ── 6. Install JS deps ────────────────────────────────────────────────────
       - name: Install npm dependencies
@@ -61,13 +57,23 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync android
 
-      # ── 9. Patch AGP version ──────────────────────────────────────────────────
-      # AGP 8.3.2 + Gradle 8.7 is an unsupported combination → bump to 8.5.2
-      - name: Patch AGP version to 8.5.2
+      # ── 9. Patch Android config ───────────────────────────────────────────────
+      # a) AGP 8.3.2 + Gradle 8.7 is unsupported → bump AGP to 8.5.2
+      # b) styles.xml uses android:windowSplashScreenIconAnimationDuration which
+      #    is an Android 12 (API 31) platform attribute. With minSdk=22, AAPT2
+      #    refuses to link it. Remove that line — the compat version
+      #    (windowSplashScreenAnimationDuration without android: prefix) is
+      #    already present on the line above and handles pre-31 devices.
+      - name: Patch AGP and remove API-31-only style attribute
         run: |
           sed -i "s/com.android.tools.build:gradle:[0-9.]*/com.android.tools.build:gradle:8.5.2/" \
             android/build.gradle
+          sed -i '/android:windowSplashScreenIconAnimationDuration/d' \
+            android/app/src/main/res/values/styles.xml
+          echo "--- AGP version ---"
           grep "com.android.tools.build" android/build.gradle
+          echo "--- styles.xml ---"
+          cat android/app/src/main/res/values/styles.xml
 
       # ── 10. Regenerate the real Gradle wrapper ────────────────────────────────
       - name: Regenerate Gradle wrapper
