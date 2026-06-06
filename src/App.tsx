@@ -660,12 +660,53 @@ function SettingsPage({ theme, setTheme, T }: any) {
 // ─── About ────────────────────────────────────────────────────────────────────
 function AboutPage({ T }: any) {
   return (
-    <div style={{ maxWidth: 560, margin: "40px auto", textAlign: "center" as const }}>
-      <div style={{ background: T.surface, borderRadius: 12, padding: 24, border: `1.5px solid ${T.border}`, textAlign: "left" as const, lineHeight: 1.9, color: T.text, fontSize: 14 }}>
-        <p style={{ marginBottom: 12 }}>This app was created on <strong>3 June 2026</strong> by <strong>Simiona Bobai</strong>, a full stack developer who is Bahá'í of the Honiara community in the Solomon Islands.</p>
-        <p style={{ marginBottom: 12 }}>This app is meant to help the <strong>National Institute Board Admin</strong> aide in her work to gather information for the Councillors.</p>
-        <p style={{ marginBottom: 0, color: T.muted, fontSize: 12, borderTop: `1px solid ${T.border}`, paddingTop: 14, marginTop: 14 }}>Version 1.0.0 · CIA Data System · 2026</p>
+    <div style={{ maxWidth: 560, margin: "24px auto" }}>
+
+      {/* App identity */}
+      <div style={{ background: T.surface, borderRadius: 12, padding: 20, border: `1.5px solid ${T.border}`, lineHeight: 1.8, color: T.text, fontSize: 14, marginBottom: 14 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, color: T.accent, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" as const }}>About This App</div>
+        <p style={{ marginBottom: 10 }}>This app was created on <strong>3 June 2026</strong> by <strong>Simiona Bobai</strong>, a full stack developer who is a member of the Bahá'í Community in Honiara, Solomon Islands.</p>
+        <p style={{ marginBottom: 0 }}>This app is meant to help the <strong>National Institute Board Admin</strong> aide in her work to gather information for the Councillors regarding data on <strong>Centres of Intense Activities</strong>.</p>
       </div>
+
+      {/* What is a CIA */}
+      <div style={{ background: T.surface, borderRadius: 12, padding: 20, border: `1.5px solid ${T.border}`, lineHeight: 1.8, color: T.text, fontSize: 14, marginBottom: 14 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, color: T.accent, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" as const }}>What is a Centre of Intense Activity?</div>
+        <p style={{ marginBottom: 0 }}>A <strong>Centre of Intense Activity (CIA)</strong> is a neighbourhood or village where the Bahá'í community-building process has reached a level of intensity — where study circles, junior youth groups, children's classes, and devotional gatherings are woven into the rhythm of community life, and where a growing number of people are walking a path of service together.</p>
+      </div>
+
+      {/* How to use */}
+      <div style={{ background: T.surface, borderRadius: 12, padding: 20, border: `1.5px solid ${T.border}`, lineHeight: 1.8, color: T.text, fontSize: 14, marginBottom: 14 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, color: T.accent, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" as const }}>How to Use</div>
+        <p style={{ marginBottom: 6 }}>1. Go to <strong>Data Collection Form</strong> to enter CIA cycle data.</p>
+        <p style={{ marginBottom: 6 }}>2. View and search all records in <strong>Summary</strong>.</p>
+        <p style={{ marginBottom: 6 }}>3. Export all records to Excel via the <strong>Summary</strong> page.</p>
+        <p style={{ marginBottom: 0 }}>4. Browse UHJ guidance in <strong>Resources</strong> — tap any card to read the full message.</p>
+      </div>
+
+      {/* Data & privacy */}
+      <div style={{ background: T.surface, borderRadius: 12, padding: 20, border: `1.5px solid ${T.border}`, lineHeight: 1.8, color: T.text, fontSize: 14, marginBottom: 14 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, color: T.accent, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" as const }}>Data & Privacy</div>
+        <p style={{ marginBottom: 0 }}>All data entered is stored <strong>locally on your device</strong> and is not sent to any external server. To share or back up your data, use the Excel export feature in the Summary page.</p>
+      </div>
+
+      {/* Acknowledgements */}
+      <div style={{ background: T.surface, borderRadius: 12, padding: 20, border: `1.5px solid ${T.border}`, lineHeight: 1.8, color: T.text, fontSize: 14, marginBottom: 14 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, color: T.accent, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10, textTransform: "uppercase" as const }}>Acknowledgements</div>
+        <p style={{ marginBottom: 0 }}>Developed in service to the <strong>Bahá'í National Institute Board of the Solomon Islands</strong> and in support of the work of the Counsellors in advancing the process of growth across the country.</p>
+      </div>
+
+      {/* UHJ quote */}
+      <div style={{ background: `${T.accent}11`, borderRadius: 12, padding: 20, border: `1.5px solid ${T.accent}44`, lineHeight: 1.8, color: T.text, fontSize: 13, fontStyle: "italic", marginBottom: 14 }}>
+        <p style={{ marginBottom: 8 }}>"Witness, for instance, those <strong>centres of intense activity</strong> where the inhabitants have embraced the work of community building with enthusiasm…"</p>
+        <div style={{ fontSize: 11, color: T.muted, fontStyle: "normal" }}>— The Universal House of Justice, Riḍván 2023</div>
+      </div>
+
+      {/* Version footer */}
+      <div style={{ textAlign: "center" as const, color: T.muted, fontSize: 12, paddingTop: 4, paddingBottom: 8 }}>
+        Version 1.0.0 · CIA Data System · Solomon Islands · 2026
+      </div>
+
     </div>
   );
 }
