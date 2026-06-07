@@ -663,6 +663,8 @@ function Summary({ forms, T }: any) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
   const dropRef = useRef<HTMLDivElement>(null);
 
   // When view level changes, reset filter and open selection modal if needed
@@ -961,25 +963,51 @@ function Summary({ forms, T }: any) {
     const wbout: any = XLSX.write(wb, { bookType: "xlsx", type: "base64", cellStyles: true });
 
     // ── Save to device and share ──────────────────────────────────────────────
+    setExporting(true);
+    setExportMsg(null);
     try {
-      // Save file to cache directory
+      // Write to Documents directory (reliable for sharing on Android)
       const savedFile = await Filesystem.writeFile({
         path: FILENAME,
         data: wbout,
-        directory: Directory.Cache,
+        directory: Directory.Documents,
+        recursive: true,
       });
 
-      // Open Android share sheet
+      setExportMsg("File saved. Opening share sheet…");
+
+      // Open Android native share sheet with file attached
       await Share.share({
-        title: `Sharing ${FILENAME}`,
+        title: FILENAME,
         text: `Please find attached ${FILENAME} from Mercy (Acting NSO for Solomon Islands).`,
         url: savedFile.uri,
         dialogTitle: "Share CIA Data",
       });
-    } catch (err) {
-      console.error("Share failed:", err);
-      // Fallback: direct download (web/Electron)
-      XLSX.writeFile(wb, FILENAME, { cellStyles: true });
+
+      setExportMsg(null);
+    } catch (err: any) {
+      console.error("Export error:", err);
+      // If Capacitor plugins aren't available (web/Electron), fall back to blob download
+      try {
+        const wbBlob = XLSX.write(wb, { bookType: "xlsx", type: "array", cellStyles: true });
+        const blob = new Blob([wbBlob], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = FILENAME;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setExportMsg("Downloaded successfully.");
+      } catch (fallbackErr) {
+        setExportMsg("Export failed. Please try again.");
+        console.error("Fallback also failed:", fallbackErr);
+      }
+    } finally {
+      setExporting(false);
+      // Clear message after 3 seconds
+      setTimeout(() => setExportMsg(null), 3000);
     }
   };
 
@@ -1095,11 +1123,21 @@ function Summary({ forms, T }: any) {
         )}
 
         <div style={{ flex: 1 }} />
-        <button onClick={exportToExcel} style={{
-          padding: "9px 16px", borderRadius: 8, background: T.success,
-          border: "none", color: "#fff", cursor: "pointer", fontSize: 12,
-          fontWeight: 700, whiteSpace: "nowrap" as const,
-        }}>⬇ Export Excel</button>
+        <button onClick={exportToExcel} disabled={exporting} style={{
+          padding: "9px 16px", borderRadius: 8,
+          background: exporting ? T.muted : T.success,
+          border: "none", color: "#fff",
+          cursor: exporting ? "not-allowed" : "pointer",
+          fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" as const,
+          opacity: exporting ? 0.7 : 1,
+          transition: "all 0.2s",
+        }}>{exporting ? "⏳ Exporting…" : "⬇ Export Excel"}</button>
+        {exportMsg && (
+          <div style={{
+            fontSize: 12, color: exportMsg.includes("fail") ? T.danger : T.success,
+            fontWeight: 600, marginLeft: 8,
+          }}>{exportMsg}</div>
+        )}
       </div>
 
       {/* ── Table title (centered) ── */}
