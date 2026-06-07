@@ -536,13 +536,89 @@ function CIACard({ f, T }: any) {
   );
 }
 
+// ─── Summary table column definitions ────────────────────────────────────────
+const SUMMARY_COLS = [
+  // col 0 — sticky first column
+  { key: "cia",                  label: "Centre of Intense Activity",                                                          group: null,          subgroup: null,    width: 180 },
+  // basic info
+  { key: "ruralUrban",           label: "Rural or Urban",                                                                       group: null,          subgroup: null,    width: 110 },
+  { key: "generalPopulation",    label: "Size of General Population (est.)",                                                    group: null,          subgroup: null,    width: 140 },
+  { key: "totalHouseholds",      label: "Total No. of Households",                                                              group: null,          subgroup: null,    width: 130 },
+  { key: "individualsConnected", label: "No. of Individuals Connected",                                                        group: null,          subgroup: null,    width: 140 },
+  { key: "householdsConnected",  label: "No. of Households Connected",                                                         group: null,          subgroup: null,    width: 140 },
+  // Core Activities — Children's Classes
+  { key: "cc_no",                label: "No.",  group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
+  { key: "cc_att",               label: "Att.", group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
+  { key: "cc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
+  // Core Activities — Junior Youth Groups
+  { key: "jy_no",                label: "No.",  group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
+  { key: "jy_att",               label: "Att.", group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
+  { key: "jy_fof",               label: "FoF.", group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
+  // Core Activities — Study Circles
+  { key: "sc_no",                label: "No.",  group: "Core Activities", subgroup: "Study Circles",       width: 60  },
+  { key: "sc_att",               label: "Att.", group: "Core Activities", subgroup: "Study Circles",       width: 60  },
+  { key: "sc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Study Circles",       width: 60  },
+  // Core Activities — Devotional Meetings
+  { key: "dm_no",                label: "No.",  group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
+  { key: "dm_att",               label: "Att.", group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
+  { key: "dm_fof",               label: "FoF.", group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
+  // Core Activities — Total
+  { key: "tot_no",               label: "No.",  group: "Core Activities", subgroup: "Total Activities",    width: 60  },
+  { key: "tot_att",              label: "Att.", group: "Core Activities", subgroup: "Total Activities",    width: 60  },
+  { key: "tot_fof",              label: "FoF.", group: "Core Activities", subgroup: "Total Activities",    width: 60  },
+  // Human Resource Development
+  { key: "book1",                label: "No. of Book 1 Completions (last 6 months)",                                           group: "Human Resource Development", subgroup: null, width: 160 },
+  { key: "totalRuhi",            label: "No. of Total Ruhi Completions (last 6 months)",                                       group: "Human Resource Development", subgroup: null, width: 160 },
+  { key: "newHumanResources",    label: "No. of New Individuals Arising to Serve (last 6 months)",                             group: "Human Resource Development", subgroup: null, width: 170 },
+  { key: "totalHumanResources",  label: "Total No. of Individuals Serving as Human Resources",                                 group: "Human Resource Development", subgroup: null, width: 160 },
+  { key: "accompany",            label: "No. of Individuals Who Accompany Other Human Resources",                              group: "Human Resource Development", subgroup: null, width: 160 },
+  // Community & Indicators
+  { key: "pockets",              label: "No. of Pockets (where applicable)",                                                   group: null, subgroup: null, width: 130 },
+  { key: "regularUndertakings",  label: "Regular Community Undertakings such as camps, festivals (Yes/No)",                   group: null, subgroup: null, width: 160 },
+  { key: "localAssembly",        label: "Local Assembly Directly Supporting the Community-Building Process (Yes/No)",          group: null, subgroup: null, width: 180 },
+  { key: "socialAction",         label: "Emergence of Social Action (Yes/No)",                                                 group: null, subgroup: null, width: 140 },
+  { key: "localLeaders",         label: "Involvement of Local Leaders / Traditional Chiefs (Yes/No)",                          group: null, subgroup: null, width: 170 },
+  { key: "spiritualHealth",      label: "Efforts to Foster Spiritual Health (Yes/No)",                                         group: null, subgroup: null, width: 160 },
+  { key: "comments",             label: "Comments",                                                                            group: null, subgroup: null, width: 180 },
+];
+
+const VIEW_LEVELS = ["National", "Regional", "Cluster", "Centre of Intense Activity"] as const;
+type ViewLevel = typeof VIEW_LEVELS[number];
+
+function getCellValue(f: any, key: string): any {
+  const t = calcTotals(f.activities);
+  const map: Record<string, any> = {
+    cia: f.cia, ruralUrban: f.ruralUrban, generalPopulation: f.generalPopulation,
+    totalHouseholds: f.totalHouseholds, individualsConnected: f.individualsConnected,
+    householdsConnected: f.householdsConnected,
+    cc_no: f.activities.children.no,   cc_att: f.activities.children.att,   cc_fof: f.activities.children.fof,
+    jy_no: f.activities.juniorYouth.no, jy_att: f.activities.juniorYouth.att, jy_fof: f.activities.juniorYouth.fof,
+    sc_no: f.activities.studyCircle.no, sc_att: f.activities.studyCircle.att, sc_fof: f.activities.studyCircle.fof,
+    dm_no: f.activities.devotional.no,  dm_att: f.activities.devotional.att,  dm_fof: f.activities.devotional.fof,
+    tot_no: t.no, tot_att: t.att, tot_fof: t.fof,
+    book1: f.book1, totalRuhi: f.totalRuhi, newHumanResources: f.newHumanResources,
+    totalHumanResources: f.totalHumanResources, accompany: f.accompany, pockets: f.pockets,
+    regularUndertakings: f.regularUndertakings, localAssembly: f.localAssembly,
+    socialAction: f.socialAction, localLeaders: f.localLeaders,
+    spiritualHealth: f.spiritualHealth, comments: f.comments,
+  };
+  return map[key] ?? "";
+}
+
 function Summary({ forms, T }: any) {
-  const [search, setSearch] = useState("");
-  const filtered = forms.filter((f: any) =>
-    (f.cia||"").toLowerCase().includes(search.toLowerCase()) ||
-    (f.cluster||"").toLowerCase().includes(search.toLowerCase()) ||
-    (f.region||"").toLowerCase().includes(search.toLowerCase())
-  );
+  const [viewLevel, setViewLevel] = useState<ViewLevel>("National");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const exportToExcel = () => {
     const headers = ["Region","Cluster","CIA","Rural/Urban","Population","Households","Individuals Connected","Households Connected",
       "CC No","CC Att","CC FoF","JY No","JY Att","JY FoF","SC No","SC Att","SC FoF","DM No","DM Att","DM FoF",
@@ -564,22 +640,219 @@ function Summary({ forms, T }: any) {
     XLSX.utils.book_append_sheet(wb, ws, "Update CIA");
     XLSX.writeFile(wb, "Centre_of_Intense_Activity_Export.xlsx");
   };
+
+  // Build multi-level header rows from SUMMARY_COLS (skip col 0 — rendered separately as sticky)
+  // Row 1: group spans | Row 2: subgroup spans | Row 3: leaf labels
+  const scrollCols = SUMMARY_COLS.slice(1);
+
+  // Accent colours for group header bands
+  const groupColor: Record<string, string> = {
+    "Core Activities":            T.accent + "33",
+    "Human Resource Development": T.accentLight + "22",
+  };
+
+  // th shared style
+  const thBase: React.CSSProperties = {
+    padding: "6px 8px",
+    fontSize: 11,
+    fontWeight: 700,
+    color: T.text,
+    border: `1px solid ${T.border}`,
+    whiteSpace: "nowrap" as const,
+    textAlign: "center" as const,
+    verticalAlign: "middle" as const,
+    background: T.surface,
+    letterSpacing: "0.03em",
+  };
+
+  // Build colspan/rowspan structure for the 3-row header
+  // Row A: group cells (spanning subgroups & leaves, or rowSpan=3 for ungrouped)
+  // Row B: subgroup cells (or rowSpan=2 for group-but-no-subgroup cols)
+  // Row C: leaf label cells
+  type HeaderCell = { label: string; colSpan?: number; rowSpan?: number; bg?: string };
+  const rowA: HeaderCell[] = [];
+  const rowB: HeaderCell[] = [];
+  const rowC: HeaderCell[] = [];
+
+  let i = 0;
+  while (i < scrollCols.length) {
+    const col = scrollCols[i];
+    if (!col.group) {
+      // No group → spans all 3 rows
+      rowA.push({ label: col.label, rowSpan: 3, colSpan: 1 });
+      // rowB & rowC: empty placeholder (handled by rowSpan)
+      i++;
+    } else {
+      // Find how many consecutive cols share this group
+      const grpStart = i;
+      while (i < scrollCols.length && scrollCols[i].group === col.group) i++;
+      const grpCols = scrollCols.slice(grpStart, i);
+      rowA.push({ label: col.group, colSpan: grpCols.length, bg: groupColor[col.group] });
+
+      // Within the group, find subgroups
+      let j = 0;
+      while (j < grpCols.length) {
+        const sub = grpCols[j].subgroup;
+        if (!sub) {
+          // Group col with no subgroup → rowSpan 2 in rowB, then leaf in rowC
+          rowB.push({ label: grpCols[j].label, rowSpan: 2, bg: groupColor[col.group] });
+          j++;
+        } else {
+          const subStart = j;
+          while (j < grpCols.length && grpCols[j].subgroup === sub) j++;
+          const subCols = grpCols.slice(subStart, j);
+          rowB.push({ label: sub, colSpan: subCols.length, bg: groupColor[col.group] + "88" });
+          subCols.forEach((sc) => rowC.push({ label: sc.label }));
+        }
+      }
+    }
+  }
+
+  const tdBase: React.CSSProperties = {
+    padding: "6px 8px",
+    fontSize: 12,
+    color: T.text,
+    border: `1px solid ${T.border}`,
+    whiteSpace: "nowrap" as const,
+    textAlign: "center" as const,
+    background: T.card,
+  };
+
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" as const }}>
-        <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Search CIA / Cluster / Region…"
-          style={{ flex: 1, minWidth: 160, padding: "9px 14px", background: T.inputBg, border: `1.5px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 13, outline: "none" }}
-          onFocus={(e: any) => e.target.style.borderColor = T.accent}
-          onBlur={(e: any) => e.target.style.borderColor = T.border}
-        />
-        <button onClick={exportToExcel} style={{ padding: "9px 16px", borderRadius: 8, background: T.success, border: "none", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" as const }}>⬇ Export Excel</button>
+    <div style={{ padding: "0 0 24px" }}>
+      {/* ── Toolbar: view level dropdown (left) + export (right) ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" as const }}>
+        {/* View level dropdown — floats left */}
+        <div ref={dropRef} style={{ position: "relative" }}>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "9px 14px", borderRadius: 8,
+              background: T.accent, border: "none", color: "#fff",
+              cursor: "pointer", fontSize: 13, fontWeight: 700,
+              boxShadow: `0 2px 8px ${T.accent}44`,
+            }}
+          >
+            {viewLevel}
+            <span style={{ fontSize: 10, opacity: 0.8 }}>{dropdownOpen ? "▲" : "▼"}</span>
+          </button>
+          {dropdownOpen && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 6px)", left: 0,
+              background: T.card, border: `1.5px solid ${T.border}`,
+              borderRadius: 10, overflow: "hidden", zIndex: 400,
+              boxShadow: "0 8px 32px #00000033", minWidth: 220,
+              animation: "fadeIn 0.15s ease",
+            }}>
+              {VIEW_LEVELS.map((lvl) => (
+                <div
+                  key={lvl}
+                  onClick={() => { setViewLevel(lvl); setDropdownOpen(false); }}
+                  style={{
+                    padding: "11px 18px", cursor: "pointer", fontSize: 13,
+                    fontWeight: lvl === viewLevel ? 700 : 400,
+                    color: lvl === viewLevel ? T.accent : T.text,
+                    background: lvl === viewLevel ? `${T.accent}18` : "transparent",
+                    borderLeft: `3px solid ${lvl === viewLevel ? T.accent : "transparent"}`,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {lvl}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <button onClick={exportToExcel} style={{ padding: "9px 16px", borderRadius: 8, background: T.success, border: "none", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" as const }}>
+          ⬇ Export Excel
+        </button>
       </div>
-      {filtered.length === 0 ? (
-        <div style={{ textAlign: "center" as const, color: T.muted, padding: 60, fontSize: 14, fontStyle: "italic" }}>No records found. Add entries via the Data Collection Form.</div>
-      ) : (
-        filtered.map((f: any) => <CIACard key={f.id} f={f} T={T} />)
-      )}
-      <div style={{ marginTop: 4, fontSize: 12, color: T.muted }}>Showing {filtered.length} of {forms.length} record{forms.length !== 1 ? "s" : ""}</div>
+
+      {/* ── Scrollable table wrapper ── */}
+      <div style={{ overflowX: "auto", borderRadius: 10, border: `1.5px solid ${T.border}`, boxShadow: `0 2px 12px ${T.border}66` }}>
+        <table style={{ borderCollapse: "collapse", tableLayout: "fixed" as const, minWidth: "max-content" }}>
+          <thead>
+            {/* ── Header Row A: groups ── */}
+            <tr>
+              {/* Sticky first-column header cell — spans all 3 header rows */}
+              <th rowSpan={3} style={{
+                ...thBase,
+                position: "sticky", left: 0, zIndex: 10,
+                background: T.surface,
+                width: SUMMARY_COLS[0].width,
+                minWidth: SUMMARY_COLS[0].width,
+                borderRight: `2px solid ${T.accent}`,
+                fontFamily: "'Cinzel', serif",
+                fontSize: 12,
+              }}>
+                {SUMMARY_COLS[0].label}
+              </th>
+              {rowA.map((cell, idx) => (
+                <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
+                  style={{ ...thBase, background: cell.bg ?? T.surface, minWidth: cell.rowSpan === 3 ? (scrollCols.find(c => c.label === cell.label)?.width ?? 120) : undefined }}>
+                  {cell.label}
+                </th>
+              ))}
+            </tr>
+            {/* ── Header Row B: subgroups ── */}
+            <tr>
+              {rowB.map((cell, idx) => (
+                <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
+                  style={{ ...thBase, background: cell.bg ?? T.surface }}>
+                  {cell.label}
+                </th>
+              ))}
+            </tr>
+            {/* ── Header Row C: leaf labels ── */}
+            <tr>
+              {rowC.map((cell, idx) => (
+                <th key={idx} style={{ ...thBase, background: T.surface }}>
+                  {cell.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {forms.length === 0 ? (
+              <tr>
+                <td colSpan={SUMMARY_COLS.length} style={{ ...tdBase, textAlign: "center" as const, padding: 40, color: T.muted, fontStyle: "italic" }}>
+                  No records found. Add entries via the Data Collection Form.
+                </td>
+              </tr>
+            ) : (
+              forms.map((f: any, rowIdx: number) => (
+                <tr key={f.id} style={{ background: rowIdx % 2 === 0 ? T.card : T.surface }}>
+                  {/* Sticky first column — CIA name */}
+                  <td style={{
+                    ...tdBase,
+                    position: "sticky", left: 0, zIndex: 1,
+                    background: rowIdx % 2 === 0 ? T.card : T.surface,
+                    borderRight: `2px solid ${T.accent}`,
+                    fontWeight: 600, textAlign: "left" as const,
+                    width: SUMMARY_COLS[0].width, minWidth: SUMMARY_COLS[0].width,
+                  }}>
+                    {f.cia || "—"}
+                  </td>
+                  {/* Scrollable columns */}
+                  {scrollCols.map((col) => (
+                    <td key={col.key} style={{ ...tdBase, background: "inherit", width: col.width, minWidth: col.width }}>
+                      {getCellValue(f, col.key) ?? "—"}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={{ marginTop: 8, fontSize: 12, color: T.muted }}>
+        {forms.length} record{forms.length !== 1 ? "s" : ""} · View: {viewLevel}
+      </div>
     </div>
   );
 }
