@@ -757,8 +757,7 @@ function Summary({ forms, T }: any) {
 
     // ── ROW 2: top-level group headers ───────────────────────────────────────
     // A2 (merged A2:A4): National Community
-    ws["A2"] = hCell("National
-Community");
+    ws["A2"] = hCell("National\nCommunity");
     // B2 (merged B2:B4): Cluster
     ws["B2"] = hCell("Cluster");
     // C2 (merged C2:C4): Centre of intense activity
@@ -768,8 +767,7 @@ Community");
     // E2 (merged E2:E4): Size of general population…
     ws["E2"] = hCell("Size of general population residing in the centre of intense activity (est.)");
     // F2 (merged F2:F4): Total no. of households
-    ws["F2"] = hCell("Total no. of households
-(if available)");
+    ws["F2"] = hCell("Total no. of households\n(if available)");
     // G2 (merged G2:G4): No. of individuals connected…
     ws["G2"] = hCell("No. of individuals connected with the community-building activities and Bahá'í community life");
     // H2 (merged H2:H4): No. of households…
@@ -785,26 +783,19 @@ Community");
     // AE2 (merged AE2:AE4): Local Assembly
     ws["AE2"] = hCell("Local Assembly directly supporting the community-building process   (Yes / No)");
     // AF2 (merged AF2:AF4): Emergence of social action
-    ws["AF2"] = hCell("Emergence of social action
-(Yes / No)");
+    ws["AF2"] = hCell("Emergence of social action\n(Yes / No)");
     // AG2 (merged AG2:AG4): Involvement of local leaders
-    ws["AG2"] = hCell("Involvement of local leaders / traditional chiefs
-(Yes / No)");
+    ws["AG2"] = hCell("Involvement of local leaders / traditional chiefs\n(Yes / No)");
     // AH2 (merged AH2:AH4): Efforts to foster spiritual health
-    ws["AH2"] = hCell("Efforts to foster spiritual health
-(Yes / No)");
+    ws["AH2"] = hCell("Efforts to foster spiritual health\n(Yes / No)");
     // AI2 (merged AI2:AI4): Comments
     ws["AI2"] = hCell("Comments");
 
     // ── ROW 3: activity sub-group headers ────────────────────────────────────
-    ws["I3"]  = hCell("Children's
-classes");   // I3:K3
-    ws["L3"]  = hCell("Junior youth
-groups");   // L3:N3
-    ws["O3"]  = hCell("Study
-circles");         // O3:Q3
-    ws["R3"]  = hCell("Devotional
-meetings");   // R3:T3
+    ws["I3"]  = hCell("Children's\nclasses");   // I3:K3
+    ws["L3"]  = hCell("Junior youth\ngroups");   // L3:N3
+    ws["O3"]  = hCell("Study\ncircles");         // O3:Q3
+    ws["R3"]  = hCell("Devotional\nmeetings");   // R3:T3
     ws["U3"]  = hCell("Total activities");       // U3:W3
     ws["X3"]  = hCell("No. of Book 1 completions in the last 6 months");      // X3:X4
     ws["Y3"]  = hCell("No. of Total Ruhi Completions in the last 6 months");  // Y3:Y4
