@@ -567,7 +567,7 @@ const SUMMARY_COLS = [
   { key: "tot_att",              label: "Att.", group: "Core Activities", subgroup: "Total Activities",     width: 50  },
   { key: "tot_fof",              label: "FoF.", group: "Core Activities", subgroup: "Total Activities",     width: 50  },
   // Human Resource Development
-  { key: "book1",                label: "No. of Book 1 completions\nin the last six months",                group: "Human Resource Development", subgroup: null,   width: 90  },
+  { key: "book1",                label: "No. of Book 1 completions\nin the last six months",                group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
   { key: "totalRuhi",            label: "No. of total Ruhi completions\nin the last six months",            group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
   { key: "newHumanResources",    label: "No. of new individuals arising to serve\nas human resources in the last 6 months", group: "Human Resource Development", subgroup: null, width: 110, cellBg: true },
   { key: "totalHumanResources",  label: "Total No. of individuals\nserving as human resources",             group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
