@@ -539,47 +539,47 @@ function CIACard({ f, T }: any) {
 // ─── Summary table column definitions ────────────────────────────────────────
 const SUMMARY_COLS = [
   // col 0 — sticky first column
-  { key: "cia",                  label: "Centre of Intense Activity",                                                          group: null,          subgroup: null,    width: 180 },
+  { key: "cia",                  label: "Centre of Intense\nActivity",                                      group: null,                        subgroup: null,    width: 100 },
   // basic info
-  { key: "ruralUrban",           label: "Rural or Urban",                                                                       group: null,          subgroup: null,    width: 110 },
-  { key: "generalPopulation",    label: "Size of General Population (est.)",                                                    group: null,          subgroup: null,    width: 140 },
-  { key: "totalHouseholds",      label: "Total No. of Households",                                                              group: null,          subgroup: null,    width: 130 },
-  { key: "individualsConnected", label: "No. of Individuals Connected",                                                        group: null,          subgroup: null,    width: 140 },
-  { key: "householdsConnected",  label: "No. of Households Connected",                                                         group: null,          subgroup: null,    width: 140 },
+  { key: "ruralUrban",           label: "Rural or Urban",                                                    group: null,                        subgroup: null,    width: 80  },
+  { key: "generalPopulation",    label: "Size of General\nPopulation (est.)",                               group: null,                        subgroup: null,    width: 90  },
+  { key: "totalHouseholds",      label: "Total no.\nof households",                                         group: null,                        subgroup: null,    width: 80  },
+  { key: "individualsConnected", label: "No. of individuals\nconnected",                                    group: null,                        subgroup: null,    width: 80  },
+  { key: "householdsConnected",  label: "No. of households\nconnected",                                     group: null,                        subgroup: null,    width: 80  },
   // Core Activities — Children's Classes
-  { key: "cc_no",                label: "No.",  group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
-  { key: "cc_att",               label: "Att.", group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
-  { key: "cc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Children's Classes",  width: 60  },
+  { key: "cc_no",                label: "No.",  group: "Core Activities", subgroup: "Children's Classes",   width: 50  },
+  { key: "cc_att",               label: "Att.", group: "Core Activities", subgroup: "Children's Classes",   width: 50  },
+  { key: "cc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Children's Classes",   width: 50  },
   // Core Activities — Junior Youth Groups
-  { key: "jy_no",                label: "No.",  group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
-  { key: "jy_att",               label: "Att.", group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
-  { key: "jy_fof",               label: "FoF.", group: "Core Activities", subgroup: "Junior Youth Groups", width: 60  },
+  { key: "jy_no",                label: "No.",  group: "Core Activities", subgroup: "Junior Youth Groups",  width: 50  },
+  { key: "jy_att",               label: "Att.", group: "Core Activities", subgroup: "Junior Youth Groups",  width: 50  },
+  { key: "jy_fof",               label: "FoF.", group: "Core Activities", subgroup: "Junior Youth Groups",  width: 50  },
   // Core Activities — Study Circles
-  { key: "sc_no",                label: "No.",  group: "Core Activities", subgroup: "Study Circles",       width: 60  },
-  { key: "sc_att",               label: "Att.", group: "Core Activities", subgroup: "Study Circles",       width: 60  },
-  { key: "sc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Study Circles",       width: 60  },
+  { key: "sc_no",                label: "No.",  group: "Core Activities", subgroup: "Study Circles",        width: 50  },
+  { key: "sc_att",               label: "Att.", group: "Core Activities", subgroup: "Study Circles",        width: 50  },
+  { key: "sc_fof",               label: "FoF.", group: "Core Activities", subgroup: "Study Circles",        width: 50  },
   // Core Activities — Devotional Meetings
-  { key: "dm_no",                label: "No.",  group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
-  { key: "dm_att",               label: "Att.", group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
-  { key: "dm_fof",               label: "FoF.", group: "Core Activities", subgroup: "Devotional Meetings", width: 60  },
+  { key: "dm_no",                label: "No.",  group: "Core Activities", subgroup: "Devotional Meetings",  width: 50  },
+  { key: "dm_att",               label: "Att.", group: "Core Activities", subgroup: "Devotional Meetings",  width: 50  },
+  { key: "dm_fof",               label: "FoF.", group: "Core Activities", subgroup: "Devotional Meetings",  width: 50  },
   // Core Activities — Total
-  { key: "tot_no",               label: "No.",  group: "Core Activities", subgroup: "Total Activities",    width: 60  },
-  { key: "tot_att",              label: "Att.", group: "Core Activities", subgroup: "Total Activities",    width: 60  },
-  { key: "tot_fof",              label: "FoF.", group: "Core Activities", subgroup: "Total Activities",    width: 60  },
+  { key: "tot_no",               label: "No.",  group: "Core Activities", subgroup: "Total Activities",     width: 50  },
+  { key: "tot_att",              label: "Att.", group: "Core Activities", subgroup: "Total Activities",     width: 50  },
+  { key: "tot_fof",              label: "FoF.", group: "Core Activities", subgroup: "Total Activities",     width: 50  },
   // Human Resource Development
-  { key: "book1",                label: "No. of Book 1 Completions (last 6 months)",                                           group: "Human Resource Development", subgroup: null, width: 160 },
-  { key: "totalRuhi",            label: "No. of Total Ruhi Completions (last 6 months)",                                       group: "Human Resource Development", subgroup: null, width: 160 },
-  { key: "newHumanResources",    label: "No. of New Individuals Arising to Serve (last 6 months)",                             group: "Human Resource Development", subgroup: null, width: 170 },
-  { key: "totalHumanResources",  label: "Total No. of Individuals Serving as Human Resources",                                 group: "Human Resource Development", subgroup: null, width: 160 },
-  { key: "accompany",            label: "No. of Individuals Who Accompany Other Human Resources",                              group: "Human Resource Development", subgroup: null, width: 160 },
+  { key: "book1",                label: "No. of Book 1 completions\nin the last six months",                group: "Human Resource Development", subgroup: null,   width: 90  },
+  { key: "totalRuhi",            label: "No. of total Ruhi completions\nin the last six months",            group: "Human Resource Development", subgroup: null,   width: 90  },
+  { key: "newHumanResources",    label: "No. of new individuals arising to serve\nas human resources in the last 6 months", group: "Human Resource Development", subgroup: null, width: 110 },
+  { key: "totalHumanResources",  label: "Total No. of individuals\nserving as human resources",             group: "Human Resource Development", subgroup: null,   width: 90  },
+  { key: "accompany",            label: "No. of individuals who accompany\nother human resources",          group: "Human Resource Development", subgroup: null,   width: 90  },
   // Community & Indicators
-  { key: "pockets",              label: "No. of Pockets (where applicable)",                                                   group: null, subgroup: null, width: 130 },
-  { key: "regularUndertakings",  label: "Regular Community Undertakings such as camps, festivals (Yes/No)",                   group: null, subgroup: null, width: 160 },
-  { key: "localAssembly",        label: "Local Assembly Directly Supporting the Community-Building Process (Yes/No)",          group: null, subgroup: null, width: 180 },
-  { key: "socialAction",         label: "Emergence of Social Action (Yes/No)",                                                 group: null, subgroup: null, width: 140 },
-  { key: "localLeaders",         label: "Involvement of Local Leaders / Traditional Chiefs (Yes/No)",                          group: null, subgroup: null, width: 170 },
-  { key: "spiritualHealth",      label: "Efforts to Foster Spiritual Health (Yes/No)",                                         group: null, subgroup: null, width: 160 },
-  { key: "comments",             label: "Comments",                                                                            group: null, subgroup: null, width: 180 },
+  { key: "pockets",              label: "No. of pockets\n(where applicable)",                               group: null, subgroup: null, width: 80  },
+  { key: "regularUndertakings",  label: "Regular Community undertakings\nsuch as camps, festivals (Yes/No)", group: null, subgroup: null, width: 100 },
+  { key: "localAssembly",        label: "Local Assembly directly supporting\nthe community-building process (Yes/No)", group: null, subgroup: null, width: 110 },
+  { key: "socialAction",         label: "Emergence of\nsocial action (Yes/No)",                             group: null, subgroup: null, width: 90  },
+  { key: "localLeaders",         label: "Involvement of local leaders /\ntraditional chiefs (Yes/No)",      group: null, subgroup: null, width: 100 },
+  { key: "spiritualHealth",      label: "Efforts to foster\nspiritual health (Yes/No)",                     group: null, subgroup: null, width: 90  },
+  { key: "comments",             label: "Comments",                                                          group: null, subgroup: null, width: 140 },
 ];
 
 const VIEW_LEVELS = ["National", "Regional", "Cluster", "Centre of Intense Activity"] as const;
@@ -658,18 +658,19 @@ function Summary({ forms, T }: any) {
     fontWeight: 700,
     color: T.text,
     border: `1px solid ${T.border}`,
-    whiteSpace: "nowrap" as const,
+    whiteSpace: "pre-line" as const,
     textAlign: "center" as const,
     verticalAlign: "middle" as const,
     background: T.surface,
     letterSpacing: "0.03em",
+    lineHeight: 1.4,
   };
 
   // Build colspan/rowspan structure for the 3-row header
   // Row A: group cells (spanning subgroups & leaves, or rowSpan=3 for ungrouped)
   // Row B: subgroup cells (or rowSpan=2 for group-but-no-subgroup cols)
   // Row C: leaf label cells
-  type HeaderCell = { label: string; colSpan?: number; rowSpan?: number; bg?: string };
+  type HeaderCell = { label: string; colSpan?: number; rowSpan?: number; bg?: string; width?: number };
   const rowA: HeaderCell[] = [];
   const rowB: HeaderCell[] = [];
   const rowC: HeaderCell[] = [];
@@ -679,7 +680,7 @@ function Summary({ forms, T }: any) {
     const col = scrollCols[i];
     if (!col.group) {
       // No group → spans all 3 rows
-      rowA.push({ label: col.label, rowSpan: 3, colSpan: 1 });
+      rowA.push({ label: col.label, rowSpan: 3, colSpan: 1, width: col.width });
       // rowB & rowC: empty placeholder (handled by rowSpan)
       i++;
     } else {
@@ -788,12 +789,13 @@ function Summary({ forms, T }: any) {
                 borderRight: `2px solid ${T.accent}`,
                 fontFamily: "'Cinzel', serif",
                 fontSize: 12,
+                whiteSpace: "pre-line",
               }}>
                 {SUMMARY_COLS[0].label}
               </th>
               {rowA.map((cell, idx) => (
                 <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
-                  style={{ ...thBase, background: cell.bg ?? T.surface, minWidth: cell.rowSpan === 3 ? (scrollCols.find(c => c.label === cell.label)?.width ?? 120) : undefined }}>
+                  style={{ ...thBase, background: cell.bg ?? T.surface, minWidth: cell.rowSpan === 3 ? (cell.width ?? 120) : undefined }}>
                   {cell.label}
                 </th>
               ))}
