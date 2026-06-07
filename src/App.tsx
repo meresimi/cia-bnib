@@ -568,10 +568,10 @@ const SUMMARY_COLS = [
   { key: "tot_fof",              label: "FoF.", group: "Core Activities", subgroup: "Total Activities",     width: 50  },
   // Human Resource Development
   { key: "book1",                label: "No. of Book 1 completions\nin the last six months",                group: "Human Resource Development", subgroup: null,   width: 90  },
-  { key: "totalRuhi",            label: "No. of total Ruhi completions\nin the last six months",            group: "Human Resource Development", subgroup: null,   width: 90  },
-  { key: "newHumanResources",    label: "No. of new individuals arising to serve\nas human resources in the last 6 months", group: "Human Resource Development", subgroup: null, width: 110 },
-  { key: "totalHumanResources",  label: "Total No. of individuals\nserving as human resources",             group: "Human Resource Development", subgroup: null,   width: 90  },
-  { key: "accompany",            label: "No. of individuals who accompany\nother human resources",          group: "Human Resource Development", subgroup: null,   width: 90  },
+  { key: "totalRuhi",            label: "No. of total Ruhi completions\nin the last six months",            group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
+  { key: "newHumanResources",    label: "No. of new individuals arising to serve\nas human resources in the last 6 months", group: "Human Resource Development", subgroup: null, width: 110, cellBg: true },
+  { key: "totalHumanResources",  label: "Total No. of individuals\nserving as human resources",             group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
+  { key: "accompany",            label: "No. of individuals who accompany\nother human resources",          group: "Human Resource Development", subgroup: null,   width: 90,  cellBg: true },
   // Community & Indicators
   { key: "pockets",              label: "No. of pockets\n(where applicable)",                               group: null, subgroup: null, width: 80  },
   { key: "regularUndertakings",  label: "Regular Community undertakings\nsuch as camps, festivals (Yes/No)", group: null, subgroup: null, width: 100 },
@@ -582,7 +582,7 @@ const SUMMARY_COLS = [
   { key: "comments",             label: "Comments",                                                          group: null, subgroup: null, width: 140 },
 ];
 
-const VIEW_LEVELS = ["National", "Regional", "Cluster", "Centre of Intense Activity"] as const;
+const VIEW_LEVELS = ["National", "Regional", "Cluster", "Locality"] as const;
 type ViewLevel = typeof VIEW_LEVELS[number];
 
 function getCellValue(f: any, key: string): any {
@@ -605,10 +605,71 @@ function getCellValue(f: any, key: string): any {
   return map[key] ?? "";
 }
 
+// ─── Selection Modal (Region / Cluster / Locality picker) ────────────────────
+function SelectionModal({ title, options, onSelect, onClose, T }: any) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 500,
+      background: "#00000088",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 24,
+    }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        background: T.card, borderRadius: 14,
+        border: `1.5px solid ${T.border}`,
+        boxShadow: "0 16px 48px #00000055",
+        width: "100%", maxWidth: 340,
+        maxHeight: "70vh", display: "flex", flexDirection: "column" as const,
+        overflow: "hidden",
+      }}>
+        <div style={{
+          padding: "16px 20px", borderBottom: `1px solid ${T.border}`,
+          fontFamily: "'Cinzel', serif", fontSize: 14,
+          color: T.accentLight, fontWeight: 700, letterSpacing: "0.06em",
+          flexShrink: 0,
+        }}>
+          {title}
+        </div>
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          {options.map((opt: string) => (
+            <div key={opt} onClick={() => onSelect(opt)} style={{
+              padding: "13px 20px", cursor: "pointer", fontSize: 13,
+              color: T.text, borderBottom: `1px solid ${T.border}44`,
+              transition: "background 0.12s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = T.accent + "22")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: "12px 20px", borderTop: `1px solid ${T.border}`, flexShrink: 0 }}>
+          <button onClick={onClose} style={{
+            width: "100%", padding: "10px", borderRadius: 8,
+            background: T.surface, border: `1px solid ${T.border}`,
+            color: T.muted, cursor: "pointer", fontSize: 13,
+          }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Summary({ forms, T }: any) {
   const [viewLevel, setViewLevel] = useState<ViewLevel>("National");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+
+  // When view level changes, reset filter and open selection modal if needed
+  const handleLevelSelect = (lvl: ViewLevel) => {
+    setViewLevel(lvl);
+    setDropdownOpen(false);
+    setSelectedFilter(null);
+    if (lvl !== "National") setShowModal(true);
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -619,12 +680,42 @@ function Summary({ forms, T }: any) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Modal options per level
+  const modalTitle = viewLevel === "Regional" ? "Select a Region"
+    : viewLevel === "Cluster" ? "Select a Cluster"
+    : viewLevel === "Locality" ? "Select a Locality"
+    : "";
+
+  const modalOptions: string[] =
+    viewLevel === "Regional" ? REGIONS :
+    viewLevel === "Cluster"  ? CLUSTERS :
+    viewLevel === "Locality" ? Array.from(new Set(forms.map((f: any) => f.cia).filter(Boolean))).sort() as string[] :
+    [];
+
+  // Filter forms based on selection
+  const filteredForms: any[] = viewLevel === "National" ? forms
+    : viewLevel === "Regional"  ? forms.filter((f: any) => f.region  === selectedFilter)
+    : viewLevel === "Cluster"   ? forms.filter((f: any) => f.cluster === selectedFilter)
+    : viewLevel === "Locality"  ? forms.filter((f: any) => f.cia     === selectedFilter)
+    : forms;
+
+  // Only show rows that have at least a CIA name entered
+  const displayForms = filteredForms.filter((f: any) => f.cia && f.cia.trim() !== "");
+
+  // Table title
+  const tableTitle = viewLevel === "National" ? "CIAs of Solomon Islands"
+    : selectedFilter
+      ? viewLevel === "Cluster"
+        ? `CIAs of ${selectedFilter}`
+        : `CIAs of ${selectedFilter}`
+      : null;
+
   const exportToExcel = () => {
     const headers = ["Region","Cluster","CIA","Rural/Urban","Population","Households","Individuals Connected","Households Connected",
       "CC No","CC Att","CC FoF","JY No","JY Att","JY FoF","SC No","SC Att","SC FoF","DM No","DM Att","DM FoF",
       "Total No","Total Att","Total FoF","Book 1","Total Ruhi","New HR","Total HR","Accompany","Pockets",
       "Regular Undertakings","Local Assembly","Social Action","Local Leaders","Spiritual Health","Comments"];
-    const rows = forms.map((f: any) => {
+    const rows = displayForms.map((f: any) => {
       const t = calcTotals(f.activities);
       return [f.region,f.cluster,f.cia,f.ruralUrban,f.generalPopulation,f.totalHouseholds,f.individualsConnected,f.householdsConnected,
         f.activities.children.no,f.activities.children.att,f.activities.children.fof,
@@ -641,62 +732,39 @@ function Summary({ forms, T }: any) {
     XLSX.writeFile(wb, "Centre_of_Intense_Activity_Export.xlsx");
   };
 
-  // Build multi-level header rows from SUMMARY_COLS (skip col 0 — rendered separately as sticky)
-  // Row 1: group spans | Row 2: subgroup spans | Row 3: leaf labels
+  // Build multi-level header rows
   const scrollCols = SUMMARY_COLS.slice(1);
-
-  // Accent colours for group header bands
   const groupColor: Record<string, string> = {
     "Core Activities":            T.accent + "33",
-    "Human Resource Development": T.accentLight + "22",
+    "Human Resource Development": T.accentLight + "44",  // darker for group header row
   };
-
-  // th shared style
+  const hrdCellBg = T.accentLight + "18";  // lighter for the 4 specific sub-cells
   const thBase: React.CSSProperties = {
-    padding: "6px 8px",
-    fontSize: 11,
-    fontWeight: 700,
-    color: T.text,
-    border: `1px solid ${T.border}`,
-    whiteSpace: "pre-line" as const,
-    textAlign: "center" as const,
-    verticalAlign: "middle" as const,
-    background: T.surface,
-    letterSpacing: "0.03em",
-    lineHeight: 1.4,
+    padding: "6px 8px", fontSize: 11, fontWeight: 700, color: T.text,
+    border: `1px solid ${T.border}`, whiteSpace: "pre-line" as const,
+    textAlign: "center" as const, verticalAlign: "middle" as const,
+    background: T.surface, letterSpacing: "0.03em", lineHeight: 1.4,
   };
-
-  // Build colspan/rowspan structure for the 3-row header
-  // Row A: group cells (spanning subgroups & leaves, or rowSpan=3 for ungrouped)
-  // Row B: subgroup cells (or rowSpan=2 for group-but-no-subgroup cols)
-  // Row C: leaf label cells
   type HeaderCell = { label: string; colSpan?: number; rowSpan?: number; bg?: string; width?: number };
   const rowA: HeaderCell[] = [];
   const rowB: HeaderCell[] = [];
   const rowC: HeaderCell[] = [];
-
   let i = 0;
   while (i < scrollCols.length) {
     const col = scrollCols[i];
     if (!col.group) {
-      // No group → spans all 3 rows
       rowA.push({ label: col.label, rowSpan: 3, colSpan: 1, width: col.width });
-      // rowB & rowC: empty placeholder (handled by rowSpan)
       i++;
     } else {
-      // Find how many consecutive cols share this group
       const grpStart = i;
       while (i < scrollCols.length && scrollCols[i].group === col.group) i++;
       const grpCols = scrollCols.slice(grpStart, i);
       rowA.push({ label: col.group, colSpan: grpCols.length, bg: groupColor[col.group] });
-
-      // Within the group, find subgroups
       let j = 0;
       while (j < grpCols.length) {
         const sub = grpCols[j].subgroup;
         if (!sub) {
-          // Group col with no subgroup → rowSpan 2 in rowB, then leaf in rowC
-          rowB.push({ label: grpCols[j].label, rowSpan: 2, bg: groupColor[col.group] });
+          rowB.push({ label: grpCols[j].label, rowSpan: 2, bg: (grpCols[j] as any).cellBg ? hrdCellBg : groupColor[col.group] });
           j++;
         } else {
           const subStart = j;
@@ -710,32 +778,37 @@ function Summary({ forms, T }: any) {
   }
 
   const tdBase: React.CSSProperties = {
-    padding: "6px 8px",
-    fontSize: 12,
-    color: T.text,
+    padding: "6px 8px", fontSize: 12, color: T.text,
     border: `1px solid ${T.border}`,
-    whiteSpace: "nowrap" as const,
-    textAlign: "center" as const,
+    whiteSpace: "nowrap" as const, textAlign: "center" as const,
     background: T.card,
   };
 
   return (
     <div style={{ padding: "0 0 24px" }}>
-      {/* ── Toolbar: view level dropdown (left) + export (right) ── */}
+      {/* ── Selection modal ── */}
+      {showModal && (
+        <SelectionModal
+          T={T}
+          title={modalTitle}
+          options={modalOptions}
+          onSelect={(val: string) => { setSelectedFilter(val); setShowModal(false); }}
+          onClose={() => { setShowModal(false); if (!selectedFilter) setViewLevel("National"); }}
+        />
+      )}
+
+      {/* ── Toolbar ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" as const }}>
-        {/* View level dropdown — floats left */}
+        {/* View level dropdown */}
         <div ref={dropRef} style={{ position: "relative" }}>
-          <button
-            onClick={() => setDropdownOpen((v) => !v)}
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "9px 14px", borderRadius: 8,
-              background: T.accent, border: "none", color: "#fff",
-              cursor: "pointer", fontSize: 13, fontWeight: 700,
-              boxShadow: `0 2px 8px ${T.accent}44`,
-            }}
-          >
-            {viewLevel}
+          <button onClick={() => setDropdownOpen((v) => !v)} style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "9px 14px", borderRadius: 8,
+            background: T.accent, border: "none", color: "#fff",
+            cursor: "pointer", fontSize: 13, fontWeight: 700,
+            boxShadow: `0 2px 8px ${T.accent}44`,
+          }}>
+            {viewLevel}{selectedFilter ? `: ${selectedFilter}` : ""}
             <span style={{ fontSize: 10, opacity: 0.8 }}>{dropdownOpen ? "▲" : "▼"}</span>
           </button>
           {dropdownOpen && (
@@ -743,22 +816,17 @@ function Summary({ forms, T }: any) {
               position: "absolute", top: "calc(100% + 6px)", left: 0,
               background: T.card, border: `1.5px solid ${T.border}`,
               borderRadius: 10, overflow: "hidden", zIndex: 400,
-              boxShadow: "0 8px 32px #00000033", minWidth: 220,
-              animation: "fadeIn 0.15s ease",
+              boxShadow: "0 8px 32px #00000033", minWidth: 180,
             }}>
               {VIEW_LEVELS.map((lvl) => (
-                <div
-                  key={lvl}
-                  onClick={() => { setViewLevel(lvl); setDropdownOpen(false); }}
-                  style={{
-                    padding: "11px 18px", cursor: "pointer", fontSize: 13,
-                    fontWeight: lvl === viewLevel ? 700 : 400,
-                    color: lvl === viewLevel ? T.accent : T.text,
-                    background: lvl === viewLevel ? `${T.accent}18` : "transparent",
-                    borderLeft: `3px solid ${lvl === viewLevel ? T.accent : "transparent"}`,
-                    transition: "all 0.15s",
-                  }}
-                >
+                <div key={lvl} onClick={() => handleLevelSelect(lvl)} style={{
+                  padding: "11px 18px", cursor: "pointer", fontSize: 13,
+                  fontWeight: lvl === viewLevel ? 700 : 400,
+                  color: lvl === viewLevel ? T.accent : T.text,
+                  background: lvl === viewLevel ? `${T.accent}18` : "transparent",
+                  borderLeft: `3px solid ${lvl === viewLevel ? T.accent : "transparent"}`,
+                  transition: "all 0.15s",
+                }}>
                   {lvl}
                 </div>
               ))}
@@ -766,95 +834,124 @@ function Summary({ forms, T }: any) {
           )}
         </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Re-open picker if filter already selected */}
+        {selectedFilter && (
+          <button onClick={() => setShowModal(true)} style={{
+            padding: "9px 12px", borderRadius: 8,
+            background: T.surface, border: `1px solid ${T.border}`,
+            color: T.muted, cursor: "pointer", fontSize: 12,
+          }}>Change</button>
+        )}
 
-        <button onClick={exportToExcel} style={{ padding: "9px 16px", borderRadius: 8, background: T.success, border: "none", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" as const }}>
-          ⬇ Export Excel
-        </button>
+        <div style={{ flex: 1 }} />
+        <button onClick={exportToExcel} style={{
+          padding: "9px 16px", borderRadius: 8, background: T.success,
+          border: "none", color: "#fff", cursor: "pointer", fontSize: 12,
+          fontWeight: 700, whiteSpace: "nowrap" as const,
+        }}>⬇ Export Excel</button>
       </div>
 
-      {/* ── Scrollable table wrapper ── */}
-      <div style={{ overflowX: "auto", borderRadius: 10, border: `1.5px solid ${T.border}`, boxShadow: `0 2px 12px ${T.border}66` }}>
-        <table style={{ borderCollapse: "collapse", tableLayout: "fixed" as const, minWidth: "max-content" }}>
-          <thead>
-            {/* ── Header Row A: groups ── */}
-            <tr>
-              {/* Sticky first-column header cell — spans all 3 header rows */}
-              <th rowSpan={3} style={{
-                ...thBase,
-                position: "sticky", left: 0, zIndex: 10,
-                background: T.surface,
-                width: SUMMARY_COLS[0].width,
-                minWidth: SUMMARY_COLS[0].width,
-                borderRight: `2px solid ${T.accent}`,
-                fontFamily: "'Cinzel', serif",
-                fontSize: 12,
-                whiteSpace: "pre-line",
-              }}>
-                {SUMMARY_COLS[0].label}
-              </th>
-              {rowA.map((cell, idx) => (
-                <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
-                  style={{ ...thBase, background: cell.bg ?? T.surface, minWidth: cell.rowSpan === 3 ? (cell.width ?? 120) : undefined }}>
-                  {cell.label}
-                </th>
-              ))}
-            </tr>
-            {/* ── Header Row B: subgroups ── */}
-            <tr>
-              {rowB.map((cell, idx) => (
-                <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
-                  style={{ ...thBase, background: cell.bg ?? T.surface }}>
-                  {cell.label}
-                </th>
-              ))}
-            </tr>
-            {/* ── Header Row C: leaf labels ── */}
-            <tr>
-              {rowC.map((cell, idx) => (
-                <th key={idx} style={{ ...thBase, background: T.surface }}>
-                  {cell.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {forms.length === 0 ? (
-              <tr>
-                <td colSpan={SUMMARY_COLS.length} style={{ ...tdBase, textAlign: "center" as const, padding: 40, color: T.muted, fontStyle: "italic" }}>
-                  No records found. Add entries via the Data Collection Form.
-                </td>
-              </tr>
-            ) : (
-              forms.map((f: any, rowIdx: number) => (
-                <tr key={f.id} style={{ background: rowIdx % 2 === 0 ? T.card : T.surface }}>
-                  {/* Sticky first column — CIA name */}
-                  <td style={{
-                    ...tdBase,
-                    position: "sticky", left: 0, zIndex: 1,
-                    background: rowIdx % 2 === 0 ? T.card : T.surface,
+      {/* ── Table title (centered) ── */}
+      {tableTitle && (
+        <div style={{
+          textAlign: "center" as const, marginBottom: 12,
+          fontFamily: "'Cinzel', serif", fontSize: 14,
+          color: T.accentLight, fontWeight: 700, letterSpacing: "0.08em",
+        }}>
+          {tableTitle}
+        </div>
+      )}
+
+      {/* ── Prompt to select filter if none chosen yet ── */}
+      {viewLevel !== "National" && !selectedFilter ? (
+        <div style={{
+          textAlign: "center" as const, padding: 48,
+          color: T.muted, fontSize: 14, fontStyle: "italic",
+        }}>
+          Tap the button above to select a {viewLevel.toLowerCase()}.
+        </div>
+      ) : (
+        <>
+          {/* ── Scrollable table ── */}
+          <div style={{ overflowX: "auto", borderRadius: 10, border: `1.5px solid ${T.border}`, boxShadow: `0 2px 12px ${T.border}66` }}>
+            <table style={{ borderCollapse: "collapse", tableLayout: "auto" as const, width: "100%" }}>
+              <thead>
+                <tr>
+                  <th rowSpan={3} style={{
+                    ...thBase, position: "sticky", left: 0, zIndex: 10,
+                    background: T.surface, minWidth: SUMMARY_COLS[0].width,
                     borderRight: `2px solid ${T.accent}`,
-                    fontWeight: 600, textAlign: "left" as const,
-                    width: SUMMARY_COLS[0].width, minWidth: SUMMARY_COLS[0].width,
+                    fontFamily: "'Cinzel', serif", fontSize: 12, whiteSpace: "pre-line",
                   }}>
-                    {f.cia || "—"}
-                  </td>
-                  {/* Scrollable columns */}
-                  {scrollCols.map((col) => (
-                    <td key={col.key} style={{ ...tdBase, background: "inherit", width: col.width, minWidth: col.width }}>
-                      {getCellValue(f, col.key) ?? "—"}
-                    </td>
+                    {SUMMARY_COLS[0].label}
+                  </th>
+                  {rowA.map((cell, idx) => (
+                    <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
+                      style={{ ...thBase, background: cell.bg ?? T.surface, minWidth: cell.rowSpan === 3 ? (cell.width ?? 80) : undefined }}>
+                      {cell.label}
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                <tr>
+                  {rowB.map((cell, idx) => (
+                    <th key={idx} colSpan={cell.colSpan} rowSpan={cell.rowSpan}
+                      style={{ ...thBase, background: cell.bg ?? T.surface }}>
+                      {cell.label}
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  {rowC.map((cell, idx) => (
+                    <th key={idx} style={{ ...thBase, background: T.surface }}>{cell.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {displayForms.length === 0 ? (
+                  <tr>
+                    <td colSpan={SUMMARY_COLS.length} style={{ ...tdBase, textAlign: "center" as const, padding: 40, color: T.muted, fontStyle: "italic" }}>
+                      No records found{selectedFilter ? ` for ${selectedFilter}` : ""}. Add entries via the Data Collection Form.
+                    </td>
+                  </tr>
+                ) : (
+                  displayForms.map((f: any, rowIdx: number) => (
+                    <tr key={f.id} style={{ background: rowIdx % 2 === 0 ? T.card : T.surface }}>
+                      <td style={{
+                        ...tdBase, position: "sticky", left: 0, zIndex: 1,
+                        background: rowIdx % 2 === 0 ? T.card : T.surface,
+                        borderRight: `2px solid ${T.accent}`,
+                        fontWeight: 600, textAlign: "left" as const,
+                        whiteSpace: "normal" as const,
+                        minWidth: SUMMARY_COLS[0].width,
+                      }}>
+                        {f.cia}
+                      </td>
+                      {scrollCols.map((col) => {
+                        const val = getCellValue(f, col.key);
+                        return (
+                          <td key={col.key} style={{
+                            ...tdBase, background: "inherit",
+                            minWidth: col.width,
+                            // Let content expand the cell naturally
+                            whiteSpace: "nowrap" as const,
+                          }}>
+                            {val !== "" && val != null ? val : ""}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      <div style={{ marginTop: 8, fontSize: 12, color: T.muted }}>
-        {forms.length} record{forms.length !== 1 ? "s" : ""} · View: {viewLevel}
-      </div>
+          <div style={{ marginTop: 8, fontSize: 12, color: T.muted }}>
+            {displayForms.length} record{displayForms.length !== 1 ? "s" : ""}
+            {selectedFilter ? ` · ${viewLevel}: ${selectedFilter}` : " · National"}
+          </div>
+        </>
+      )}
     </div>
   );
 }
