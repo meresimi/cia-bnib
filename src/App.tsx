@@ -765,7 +765,6 @@ function Summary({ forms, T }: any) {
       ];
 
       // ── Style helpers ─────────────────────────────────────────────────────
-      // Header fill: theme accent5 #5B9BD5 + tint 0.6 = #BDD7EE
       const HEADER_FILL: ExcelJS.Fill = {
         type: "pattern", pattern: "solid",
         fgColor: { argb: "FFBDD7EE" },
@@ -804,46 +803,37 @@ function Summary({ forms, T }: any) {
       // ── ROW 2: Top-level group headers ────────────────────────────────────
       const r2 = ws.getRow(2);
       r2.height = 14.45;
-      applyHeader(r2.getCell(1),  "National
-Community");
+      applyHeader(r2.getCell(1),  "National\nCommunity");
       applyHeader(r2.getCell(2),  "Cluster");
       applyHeader(r2.getCell(3),  "Centre of intense activity");
       applyHeader(r2.getCell(4),  "Rural or Urban");
       applyHeader(r2.getCell(5),  "Size of general population residing in the centre of intense activity (est.)");
-      applyHeader(r2.getCell(6),  "Total no. of households
-(if available)");
-      applyHeader(r2.getCell(7),  "No. of individuals connected with the community-building activities and Bahá\'í community life");
+      applyHeader(r2.getCell(6),  "Total no. of households\n(if available)");
+      applyHeader(r2.getCell(7),  "No. of individuals connected with the community-building activities and Bah\u00e1\u2019\u00ed community life");
       applyHeader(r2.getCell(8),  "No. of households in which at least one person is connected to the community-building process");
-      applyHeader(r2.getCell(9),  "Core Activities in the centre of intense activity");        // I2 (col 9)
-      applyHeader(r2.getCell(24), "Human Resource Development in the centre of intense activity"); // X2 (col 24)
-      applyHeader(r2.getCell(29), "No. of pockets  (where applicable)");                         // AC2
-      applyHeader(r2.getCell(30), "Regular Community undertakings such as camps, festivals (Yes / No) "); // AD2
-      applyHeader(r2.getCell(31), "Local Assembly directly supporting the community-building process   (Yes / No)"); // AE2
-      applyHeader(r2.getCell(32), "Emergence of social action
-(Yes / No)");                      // AF2
-      applyHeader(r2.getCell(33), "Involvement of local leaders / traditional chiefs
-(Yes / No)"); // AG2
-      applyHeader(r2.getCell(34), "Efforts to foster spiritual health
-(Yes / No)");               // AH2
-      applyHeader(r2.getCell(35), "Comments");                                                     // AI2
+      applyHeader(r2.getCell(9),  "Core Activities in the centre of intense activity");
+      applyHeader(r2.getCell(24), "Human Resource Development in the centre of intense activity");
+      applyHeader(r2.getCell(29), "No. of pockets  (where applicable)");
+      applyHeader(r2.getCell(30), "Regular Community undertakings such as camps, festivals (Yes / No) ");
+      applyHeader(r2.getCell(31), "Local Assembly directly supporting the community-building process   (Yes / No)");
+      applyHeader(r2.getCell(32), "Emergence of social action\n(Yes / No)");
+      applyHeader(r2.getCell(33), "Involvement of local leaders / traditional chiefs\n(Yes / No)");
+      applyHeader(r2.getCell(34), "Efforts to foster spiritual health\n(Yes / No)");
+      applyHeader(r2.getCell(35), "Comments");
 
       // ── ROW 3: Activity sub-group headers ────────────────────────────────
       const r3 = ws.getRow(3);
       r3.height = 28.9;
-      applyHeader(r3.getCell(9),  "Children\'s
-classes");    // I3
-      applyHeader(r3.getCell(12), "Junior youth
-groups");    // L3
-      applyHeader(r3.getCell(15), "Study
-circles");          // O3
-      applyHeader(r3.getCell(18), "Devotional
-meetings");    // R3
-      applyHeader(r3.getCell(21), "Total activities");        // U3
-      applyHeader(r3.getCell(24), "No. of Book 1 completions in the last 6 months");      // X3
-      applyHeader(r3.getCell(25), "No. of Total Ruhi Completions in the last 6 months");  // Y3
-      applyHeader(r3.getCell(26), "No. of new individuals arising to serve as human resources in the last 6 months"); // Z3
-      applyHeader(r3.getCell(27), "Total No. of individuals serving as human resources"); // AA3
-      applyHeader(r3.getCell(28), "No. of individuals who accompany other human resources"); // AB3
+      applyHeader(r3.getCell(9),  "Children's\nclasses");
+      applyHeader(r3.getCell(12), "Junior youth\ngroups");
+      applyHeader(r3.getCell(15), "Study\ncircles");
+      applyHeader(r3.getCell(18), "Devotional\nmeetings");
+      applyHeader(r3.getCell(21), "Total activities");
+      applyHeader(r3.getCell(24), "No. of Book 1 completions in the last 6 months");
+      applyHeader(r3.getCell(25), "No. of Total Ruhi Completions in the last 6 months");
+      applyHeader(r3.getCell(26), "No. of new individuals arising to serve as human resources in the last 6 months");
+      applyHeader(r3.getCell(27), "Total No. of individuals serving as human resources");
+      applyHeader(r3.getCell(28), "No. of individuals who accompany other human resources");
 
       // ── ROW 4: No./Att./FoF. leaf headers ────────────────────────────────
       const r4 = ws.getRow(4);
@@ -851,36 +841,18 @@ meetings");    // R3
       const leafLabels = ["No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF."];
       leafLabels.forEach((lbl, idx) => applyHeader(r4.getCell(9 + idx), lbl));
 
-      // ── ROW 2 merges ─────────────────────────────────────────────────────
-      ws.mergeCells("A2:A4");
-      ws.mergeCells("B2:B4");
-      ws.mergeCells("C2:C4");
-      ws.mergeCells("D2:D4");
-      ws.mergeCells("E2:E4");
-      ws.mergeCells("F2:F4");
-      ws.mergeCells("G2:G4");
-      ws.mergeCells("H2:H4");
-      ws.mergeCells("I2:W2");   // Core Activities group
-      ws.mergeCells("X2:AB2");  // HRD group
-      ws.mergeCells("AC2:AC4");
-      ws.mergeCells("AD2:AD4");
-      ws.mergeCells("AE2:AE4");
-      ws.mergeCells("AF2:AF4");
-      ws.mergeCells("AG2:AG4");
-      ws.mergeCells("AH2:AH4");
+      // ── Merges ────────────────────────────────────────────────────────────
+      ws.mergeCells("A2:A4");  ws.mergeCells("B2:B4");  ws.mergeCells("C2:C4");
+      ws.mergeCells("D2:D4");  ws.mergeCells("E2:E4");  ws.mergeCells("F2:F4");
+      ws.mergeCells("G2:G4");  ws.mergeCells("H2:H4");
+      ws.mergeCells("I2:W2");  ws.mergeCells("X2:AB2");
+      ws.mergeCells("AC2:AC4"); ws.mergeCells("AD2:AD4"); ws.mergeCells("AE2:AE4");
+      ws.mergeCells("AF2:AF4"); ws.mergeCells("AG2:AG4"); ws.mergeCells("AH2:AH4");
       ws.mergeCells("AI2:AI4");
-
-      // ── ROW 3 merges ─────────────────────────────────────────────────────
-      ws.mergeCells("I3:K3");
-      ws.mergeCells("L3:N3");
-      ws.mergeCells("O3:Q3");
-      ws.mergeCells("R3:T3");
-      ws.mergeCells("U3:W3");
-      ws.mergeCells("X3:X4");
-      ws.mergeCells("Y3:Y4");
-      ws.mergeCells("Z3:Z4");
-      ws.mergeCells("AA3:AA4");
-      ws.mergeCells("AB3:AB4");
+      ws.mergeCells("I3:K3");  ws.mergeCells("L3:N3");  ws.mergeCells("O3:Q3");
+      ws.mergeCells("R3:T3");  ws.mergeCells("U3:W3");
+      ws.mergeCells("X3:X4");  ws.mergeCells("Y3:Y4");  ws.mergeCells("Z3:Z4");
+      ws.mergeCells("AA3:AA4"); ws.mergeCells("AB3:AB4");
 
       // ── DATA ROWS starting at row 5 ──────────────────────────────────────
       const dataRowStart = 5;
@@ -888,10 +860,8 @@ meetings");    // R3
         const rowNum = dataRowStart + idx;
         const row = ws.getRow(rowNum);
         row.height = 19.9;
-
         const d = (v: any) => (v !== "" && v !== undefined && v !== null ? v : null);
         const n = (v: any) => (v !== "" && v !== undefined && v !== null ? Number(v) : null);
-
         applyData(row.getCell(1),  d(f.region));
         applyData(row.getCell(2),  d(f.cluster));
         applyData(row.getCell(3),  d(f.cia));
@@ -912,7 +882,6 @@ meetings");    // R3
         applyData(row.getCell(18), n(f.activities.devotional.no));
         applyData(row.getCell(19), n(f.activities.devotional.att));
         applyData(row.getCell(20), n(f.activities.devotional.fof));
-        // Total cols U/V/W — formulas
         const uCell = row.getCell(21);
         uCell.value = { formula: `I${rowNum}+L${rowNum}+O${rowNum}+R${rowNum}` };
         uCell.font = DATA_FONT; uCell.alignment = { horizontal: "center", vertical: "middle" }; uCell.border = THIN_BORDER;
@@ -938,26 +907,20 @@ meetings");    // R3
 
       const lastDataRow = dataRowStart + displayForms.length - 1;
 
-      // ── NOTES rows (matching original rows 16, 19, 21 offsets) ───────────
+      // ── NOTES rows ────────────────────────────────────────────────────────
       const notesStart = Math.max(lastDataRow + 2, dataRowStart + 11);
-
-      const noteRow1 = ws.getRow(notesStart);
-      noteRow1.height = 20.25;
-      const nc1 = noteRow1.getCell(1);
+      const nc1 = ws.getRow(notesStart).getCell(1);
       nc1.value = "G - Including those participating in the core activities, this represents the size of the local community that we are engaging, and should include, for example, those that attend Holy Day commemorations, parents of children and junior youth in educational activities, participants of periodic camps and festivals, those receiving home visits, those who are part of ongoing conversations, etc.";
       nc1.font = NOTE_FONT;
       nc1.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
-      ws.mergeCells(`A${notesStart}:O${notesStart + 1}`);
+      ws.getRow(notesStart).height = 20.25;
       ws.getRow(notesStart + 1).height = 20.25;
-
-      const noteRow2 = ws.getRow(notesStart + 3);
-      const nc2 = noteRow2.getCell(1);
-      nc2.value = "AA - This represents teachers of children\'s classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in in direct teaching efforts, etc.";
+      ws.mergeCells(`A${notesStart}:O${notesStart + 1}`);
+      const nc2 = ws.getRow(notesStart + 3).getCell(1);
+      nc2.value = "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.";
       nc2.font = NOTE_FONT;
       nc2.alignment = { vertical: "middle" };
-
-      const noteRow3 = ws.getRow(notesStart + 5);
-      const nc3 = noteRow3.getCell(1);
+      const nc3 = ws.getRow(notesStart + 5).getCell(1);
       nc3.value = "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.";
       nc3.font = NOTE_FONT;
       nc3.alignment = { vertical: "middle" };
@@ -976,7 +939,7 @@ meetings");    // R3
           directory: Directory.Documents,
           recursive: true,
         });
-        setExportMsg("File saved. Opening share sheet…");
+        setExportMsg("File saved. Opening share sheet\u2026");
         await Share.share({
           title: FILENAME,
           text: `Please find attached ${FILENAME} from Mercy (Acting NSO for Solomon Islands).`,
@@ -985,7 +948,6 @@ meetings");    // R3
         });
         setExportMsg(null);
       } catch {
-        // Web / Electron fallback
         const blob = new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
