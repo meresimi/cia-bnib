@@ -748,7 +748,7 @@ function Summary({ forms, T }: any) {
       const XF_NOTE2  = 4;
       const XF_NOTE3  = 5;
 
-      type CellDef = { t: "s"|"n"|"f"; v: any; xf: number };
+      type CellDef = { t: "s"|"n"|"f"|"b"; v: any; xf: number };
       const cells = new Map<string, CellDef>();
       const setS = (c: number, r: number, v: string, xf: number) =>
         cells.set(addr(c,r), { t:"s", v: ss(v), xf });
@@ -756,6 +756,17 @@ function Summary({ forms, T }: any) {
         cells.set(addr(c,r), { t:"n", v: v ?? "", xf });
       const setF = (c: number, r: number, formula: string, xf: number) =>
         cells.set(addr(c,r), { t:"f", v: formula, xf });
+      // Stamp thin border on every non-anchor cell in a merged region
+      const XF_BORDER = 6;
+      const stampMergeBorders = (c1: number, r1: number, c2: number, r2: number) => {
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            if (r === r1 && c === c1) continue; // anchor already has XF_HEADER border
+            if (!cells.has(addr(c, r)))
+              cells.set(addr(c, r), { t:"b", v: "", xf: XF_BORDER });
+          }
+        }
+      };
 
       // ROW 1
       setS(1, 1, "Please refer to notes in the heading cells G, AA & AB for clarification ", XF_NOTE2);
@@ -851,10 +862,29 @@ function Summary({ forms, T }: any) {
         rowCells.forEach(([ca, def]) => {
           if (def.t === "s")      rowXml += `<c r="${ca}" t="s" s="${def.xf}"><v>${def.v}</v></c>`;
           else if (def.t === "n") rowXml += def.v !== "" ? `<c r="${ca}" t="n" s="${def.xf}"><v>${def.v}</v></c>` : `<c r="${ca}" s="${def.xf}"/>`;
+          else if (def.t === "b") rowXml += `<c r="${ca}" s="${def.xf}"/>`;
           else                    rowXml += `<c r="${ca}" s="${def.xf}"><f>${xe(def.v)}</f></c>`;
         });
         sheetDataXml += rowXml + `</row>`;
       });
+
+      // Stamp borders on all non-anchor cells in every header merge
+      // (skip A1:O1 — row 1 has no border per original template)
+      stampMergeBorders(1,2,1,4);   stampMergeBorders(2,2,2,4);   // A2:A4, B2:B4
+      stampMergeBorders(3,2,3,4);   stampMergeBorders(4,2,4,4);   // C2:C4, D2:D4
+      stampMergeBorders(5,2,5,4);   stampMergeBorders(6,2,6,4);   // E2:E4, F2:F4
+      stampMergeBorders(7,2,7,4);   stampMergeBorders(8,2,8,4);   // G2:G4, H2:H4
+      stampMergeBorders(9,2,23,2);  stampMergeBorders(24,2,28,2); // I2:W2, X2:AB2
+      stampMergeBorders(29,2,29,4); stampMergeBorders(30,2,30,4); // AC2:AC4, AD2:AD4
+      stampMergeBorders(31,2,31,4); stampMergeBorders(32,2,32,4); // AE2:AE4, AF2:AF4
+      stampMergeBorders(33,2,33,4); stampMergeBorders(34,2,34,4); // AG2:AG4, AH2:AH4
+      stampMergeBorders(35,2,35,4);                                // AI2:AI4
+      stampMergeBorders(9,3,11,3);  stampMergeBorders(12,3,14,3); // I3:K3, L3:N3
+      stampMergeBorders(15,3,17,3); stampMergeBorders(18,3,20,3); // O3:Q3, R3:T3
+      stampMergeBorders(21,3,23,3);                                // U3:W3
+      stampMergeBorders(24,3,24,4); stampMergeBorders(25,3,25,4); // X3:X4, Y3:Y4
+      stampMergeBorders(26,3,26,4); stampMergeBorders(27,3,27,4); // Z3:Z4, AA3:AA4
+      stampMergeBorders(28,3,28,4);                                // AB3:AB4
 
       const merges = [
         "A1:O1",
@@ -910,13 +940,14 @@ function Summary({ forms, T }: any) {
           `</border>` +
         `</borders>` +
         `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="6">` +
+        `<cellXfs count="7">` +
           `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
           `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
           `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
           `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          `<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>` +
         `</cellXfs>` +
         `</styleSheet>`;
 
