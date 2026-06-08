@@ -757,7 +757,7 @@ function Summary({ forms, T }: any) {
       const setF = (c: number, r: number, formula: string, xf: number) =>
         cells.set(addr(c,r), { t:"f", v: formula, xf });
       // Stamp thin border on every non-anchor cell in a merged region
-      const XF_BORDER = 6;
+      const XF_BORDER = 2; // reuse XF_DATA: borderId=1, no fill, center align
       const stampMergeBorders = (c1: number, r1: number, c2: number, r2: number) => {
         for (let r = r1; r <= r2; r++) {
           for (let c = c1; c <= c2; c++) {
@@ -940,14 +940,13 @@ function Summary({ forms, T }: any) {
           `</border>` +
         `</borders>` +
         `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="7">` +
+        `<cellXfs count="6">` +
           `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
           `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
           `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
           `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
-          `<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>` +
         `</cellXfs>` +
         `</styleSheet>`;
 
