@@ -11,7 +11,7 @@ A cross-platform Android app (React + Capacitor) for collecting, viewing, and ex
 
 - 📋 **Data Collection Form** — Collects CIA data per cycle: region, cluster, CIA name, rural/urban, population, households, individuals/households connected, and all core activity numbers
 - 📊 **Summary View** — Browse all submitted CIA records; search by CIA name, cluster, or region; expand each card for full details
-- ⬇️ **Excel Export** — Export all records to a `.xlsx` spreadsheet matching the official CIA template format
+- ⬇️ **Excel Export** — Export all records to a `.xlsx` spreadsheet that pixel-perfectly matches the official CIA template: exact fills, fonts (Times New Roman headers, Calibri notes), borders on every cell, merged header regions, column widths, and row heights. Shared directly from the device via the native Android share sheet (Gmail, WhatsApp, Drive, etc.)
 - 📚 **Resources** — Browse UHJ messages referencing Centres of Intense Activity, with in-app document reader that jumps directly to the relevant paragraph
 - ⚙️ **Settings** — Switch between Daylight and Night themes
 - ℹ️ **About** — App info and version
@@ -37,11 +37,13 @@ A cross-platform Android app (React + Capacitor) for collecting, viewing, and ex
 
 **General Information:** Region · Cluster · CIA Name · Rural/Urban · Population · Households · Individuals Connected · Households Connected
 
-**Core Activities:** Study Circles · Junior Youth Groups · Children's Classes · Devotional Gatherings · Home Visits · Reflection Meetings
+**Core Activities (No. / Attendance / FoF per activity type):** Children's Classes · Junior Youth Groups · Study Circles · Devotional Meetings · *(Total auto-calculated)*
 
-**Human Resource Development:** Believers · Seekers · Facilitators · Animators · Children's Class Teachers · Tutors
+**Human Resource Development:** Book 1 Completions · Total Ruhi Completions · New Human Resources · Total Human Resources · Individuals who Accompany
 
-**Community Life & Indicators:** Involvement in Social Action · Involvement in Discourse · Other Activities
+**Community Life & Indicators:** No. of Pockets · Regular Community Undertakings · Local Assembly Support · Social Action · Local Leaders/Chiefs Involvement · Efforts to Foster Spiritual Health · Comments
+
+> ⚠️ *The field list above reflects the actual exported template columns. Earlier versions of this README listed different fields — those have been corrected.*
 
 ---
 
@@ -64,6 +66,8 @@ npx cap open android  # Open in Android Studio → Build APK
 
 Go to **Actions → Build CIA APK → Run workflow** to manually trigger an APK build.  
 The APK is uploaded as a workflow artifact and published as a GitHub Release.
+
+> **CI note:** The workflow uses the Gradle wrapper already committed in `android/gradle/wrapper/gradle-wrapper.properties` (Gradle 8.7). There is no separate "Set up Gradle" step — `./gradlew` handles its own distribution download automatically.
 
 ---
 
@@ -107,7 +111,7 @@ The CIA globe icon appears on:
 - **React + TypeScript** — UI
 - **Vite** — Build tool
 - **Capacitor 6** — Android wrapper
-- **xlsx** — Excel export
+- **jszip** — Excel export (hand-built OOXML; full style support without Node.js dependencies)
 - **Firebase** — *(not yet integrated)*
 - **GitHub Actions** — APK CI/CD
 
