@@ -746,6 +746,7 @@ function Summary({ forms, T }: any) {
       const XF_DATA   = 2;
       const XF_NOTE1  = 3;
       const XF_NOTE2  = 4;
+      const XF_NOTE3  = 5;
 
       type CellDef = { t: "s"|"n"|"f"; v: any; xf: number };
       const cells = new Map<string, CellDef>();
@@ -827,8 +828,8 @@ function Summary({ forms, T }: any) {
       const lastDataRow = dataRowStart + displayForms.length - 1;
       const notesStart  = Math.max(lastDataRow + 2, dataRowStart + 11);
       setS(1, notesStart,     "G - Including those participating in the core activities, this represents the size of the local community that we are engaging, and should include, for example, those that attend Holy Day commemorations, parents of children and junior youth in educational activities, participants of periodic camps and festivals, those receiving home visits, those who are part of ongoing conversations, etc.", XF_NOTE1);
-      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE2);
-      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE2);
+      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE3);
+      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE3);
 
       // Build sheetData XML
       const rowMap = new Map<number, Array<[string, CellDef]>>();
@@ -837,8 +838,7 @@ function Summary({ forms, T }: any) {
         if (!rowMap.has(rn)) rowMap.set(rn, []);
         rowMap.get(rn)!.push([cellAddr, def]);
       });
-      const ROW_HT: Record<number, number> = { 1:14.45, 2:14.45, 3:28.9, 4:89.45 };
-      for (let r = 5; r <= lastDataRow; r++) ROW_HT[r] = 19.9;
+      const ROW_HT: Record<number, number> = { 2:14.45, 3:28.9, 4:89.45 };
       ROW_HT[notesStart] = 20.25; ROW_HT[notesStart+1] = 20.25;
 
       let sheetDataXml = "";
@@ -872,7 +872,7 @@ function Summary({ forms, T }: any) {
         13,13,6.1875,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
         10.76171875,13,13,13,13,13,10.89453125,9.953125,13,9.953125,13,17.75390625,
       ];
-      const colsXml = `<cols>${COL_WIDTHS.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols>`;
+      const colsXml = `<cols>${COL_WIDTHS.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1" bestFit="0"/>`).join("")}</cols>`;
 
       const sheetXml =
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
@@ -910,12 +910,13 @@ function Summary({ forms, T }: any) {
           `</border>` +
         `</borders>` +
         `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="5">` +
+        `<cellXfs count="6">` +
           `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
           `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
           `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
           `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
         `</cellXfs>` +
         `</styleSheet>`;
 
