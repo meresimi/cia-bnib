@@ -974,21 +974,35 @@ function Summary({ forms, T }: any) {
         reader.readAsDataURL(blob);
       });
 
-      // Save & share via Capacitor (Android), fallback to blob download
+      // Save & share via Capacitor (Android).
+      // Directory.Cache is always writable — no runtime permission needed.
+      // Directory.Documents is blocked on Android 10+ which caused the silent failure.
+      let savedUri: string | null = null;
       try {
         const savedFile = await Filesystem.writeFile({
-          path: FILENAME, data: base64,
-          directory: Directory.Documents, recursive: true,
+          path: FILENAME,
+          data: base64,
+          directory: Directory.Cache,
+          recursive: true,
         });
+        savedUri = savedFile.uri;
+      } catch (fsErr: any) {
+        console.error("Filesystem.writeFile failed:", fsErr);
+        setExportMsg("Save failed: " + (fsErr?.message ?? String(fsErr)));
+        return;
+      }
+
+      try {
         setExportMsg("File saved. Opening share sheet\u2026");
         await Share.share({
           title: FILENAME,
           text: `Please find attached ${FILENAME} from Mercy (Acting NSO for Solomon Islands).`,
-          url: savedFile.uri,
+          url: savedUri,
           dialogTitle: "Share CIA Data",
         });
         setExportMsg(null);
-      } catch {
+      } catch (shareErr: any) {
+        console.warn("Share dismissed or failed:", shareErr);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url; a.download = FILENAME;
