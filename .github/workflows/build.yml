@@ -24,11 +24,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Gradle 8.7
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -120,11 +115,9 @@ jobs:
           echo "--- AGP ---"
           grep "com.android.tools.build" android/build.gradle
 
-      - name: Regenerate Gradle wrapper
+      - name: Make gradlew executable
         working-directory: android
-        run: |
-          gradle wrapper --gradle-version 8.7 --distribution-type bin
-          chmod +x gradlew
+        run: chmod +x gradlew
 
       - name: Build debug APK
         working-directory: android
