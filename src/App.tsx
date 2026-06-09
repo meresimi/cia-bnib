@@ -860,99 +860,6 @@ function Summary({ forms, T }: any) {
 
       // Stamp borders on all non-anchor cells in every header merge
       // (skip A1:O1 — row 1 has no border per original template)
-      // Explicit per-cell border stamps for every non-anchor cell in each merge
-      if (!cells.has("A2")) cells.set("A2", { t:"b", v:"", xf:6 });
-      if (!cells.has("A3")) cells.set("A3", { t:"b", v:"", xf:7 });
-      if (!cells.has("A4")) cells.set("A4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AA2")) cells.set("AA2", { t:"b", v:"", xf:9 });
-      if (!cells.has("AA3")) cells.set("AA3", { t:"b", v:"", xf:6 });
-      if (!cells.has("AA4")) cells.set("AA4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AB2")) cells.set("AB2", { t:"b", v:"", xf:11 });
-      if (!cells.has("AB3")) cells.set("AB3", { t:"b", v:"", xf:6 });
-      if (!cells.has("AB4")) cells.set("AB4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AC2")) cells.set("AC2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AC3")) cells.set("AC3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AC4")) cells.set("AC4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AD2")) cells.set("AD2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AD3")) cells.set("AD3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AD4")) cells.set("AD4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AE2")) cells.set("AE2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AE3")) cells.set("AE3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AE4")) cells.set("AE4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AF2")) cells.set("AF2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AF3")) cells.set("AF3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AF4")) cells.set("AF4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AG2")) cells.set("AG2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AG3")) cells.set("AG3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AG4")) cells.set("AG4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AH2")) cells.set("AH2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AH3")) cells.set("AH3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AH4")) cells.set("AH4", { t:"b", v:"", xf:8 });
-      if (!cells.has("AI2")) cells.set("AI2", { t:"b", v:"", xf:6 });
-      if (!cells.has("AI3")) cells.set("AI3", { t:"b", v:"", xf:7 });
-      if (!cells.has("AI4")) cells.set("AI4", { t:"b", v:"", xf:8 });
-      if (!cells.has("B2")) cells.set("B2", { t:"b", v:"", xf:6 });
-      if (!cells.has("B3")) cells.set("B3", { t:"b", v:"", xf:7 });
-      if (!cells.has("B4")) cells.set("B4", { t:"b", v:"", xf:8 });
-      if (!cells.has("C2")) cells.set("C2", { t:"b", v:"", xf:6 });
-      if (!cells.has("C3")) cells.set("C3", { t:"b", v:"", xf:7 });
-      if (!cells.has("C4")) cells.set("C4", { t:"b", v:"", xf:8 });
-      if (!cells.has("D2")) cells.set("D2", { t:"b", v:"", xf:6 });
-      if (!cells.has("D3")) cells.set("D3", { t:"b", v:"", xf:7 });
-      if (!cells.has("D4")) cells.set("D4", { t:"b", v:"", xf:8 });
-      if (!cells.has("E2")) cells.set("E2", { t:"b", v:"", xf:6 });
-      if (!cells.has("E3")) cells.set("E3", { t:"b", v:"", xf:7 });
-      if (!cells.has("E4")) cells.set("E4", { t:"b", v:"", xf:8 });
-      if (!cells.has("F2")) cells.set("F2", { t:"b", v:"", xf:6 });
-      if (!cells.has("F3")) cells.set("F3", { t:"b", v:"", xf:7 });
-      if (!cells.has("F4")) cells.set("F4", { t:"b", v:"", xf:8 });
-      if (!cells.has("G2")) cells.set("G2", { t:"b", v:"", xf:6 });
-      if (!cells.has("G3")) cells.set("G3", { t:"b", v:"", xf:7 });
-      if (!cells.has("G4")) cells.set("G4", { t:"b", v:"", xf:8 });
-      if (!cells.has("H2")) cells.set("H2", { t:"b", v:"", xf:6 });
-      if (!cells.has("H3")) cells.set("H3", { t:"b", v:"", xf:7 });
-      if (!cells.has("H4")) cells.set("H4", { t:"b", v:"", xf:8 });
-      if (!cells.has("I2")) cells.set("I2", { t:"b", v:"", xf:10 });
-      if (!cells.has("I3")) cells.set("I3", { t:"b", v:"", xf:10 });
-      if (!cells.has("J2")) cells.set("J2", { t:"b", v:"", xf:9 });
-      if (!cells.has("J3")) cells.set("J3", { t:"b", v:"", xf:9 });
-      if (!cells.has("K2")) cells.set("K2", { t:"b", v:"", xf:9 });
-      if (!cells.has("K3")) cells.set("K3", { t:"b", v:"", xf:11 });
-      if (!cells.has("L2")) cells.set("L2", { t:"b", v:"", xf:9 });
-      if (!cells.has("L3")) cells.set("L3", { t:"b", v:"", xf:10 });
-      if (!cells.has("M2")) cells.set("M2", { t:"b", v:"", xf:9 });
-      if (!cells.has("M3")) cells.set("M3", { t:"b", v:"", xf:9 });
-      if (!cells.has("N2")) cells.set("N2", { t:"b", v:"", xf:9 });
-      if (!cells.has("N3")) cells.set("N3", { t:"b", v:"", xf:11 });
-      if (!cells.has("O2")) cells.set("O2", { t:"b", v:"", xf:9 });
-      if (!cells.has("O3")) cells.set("O3", { t:"b", v:"", xf:10 });
-      if (!cells.has("P2")) cells.set("P2", { t:"b", v:"", xf:9 });
-      if (!cells.has("P3")) cells.set("P3", { t:"b", v:"", xf:9 });
-      if (!cells.has("Q2")) cells.set("Q2", { t:"b", v:"", xf:9 });
-      if (!cells.has("Q3")) cells.set("Q3", { t:"b", v:"", xf:11 });
-      if (!cells.has("R2")) cells.set("R2", { t:"b", v:"", xf:9 });
-      if (!cells.has("R3")) cells.set("R3", { t:"b", v:"", xf:10 });
-      if (!cells.has("S2")) cells.set("S2", { t:"b", v:"", xf:9 });
-      if (!cells.has("S3")) cells.set("S3", { t:"b", v:"", xf:9 });
-      if (!cells.has("T2")) cells.set("T2", { t:"b", v:"", xf:9 });
-      if (!cells.has("T3")) cells.set("T3", { t:"b", v:"", xf:11 });
-      if (!cells.has("U2")) cells.set("U2", { t:"b", v:"", xf:9 });
-      if (!cells.has("U3")) cells.set("U3", { t:"b", v:"", xf:10 });
-      if (!cells.has("V2")) cells.set("V2", { t:"b", v:"", xf:9 });
-      if (!cells.has("V3")) cells.set("V3", { t:"b", v:"", xf:9 });
-      if (!cells.has("W2")) cells.set("W2", { t:"b", v:"", xf:11 });
-      if (!cells.has("W3")) cells.set("W3", { t:"b", v:"", xf:11 });
-      if (!cells.has("X2")) cells.set("X2", { t:"b", v:"", xf:10 });
-      if (!cells.has("X3")) cells.set("X3", { t:"b", v:"", xf:6 });
-      if (!cells.has("X4")) cells.set("X4", { t:"b", v:"", xf:8 });
-      if (!cells.has("Y2")) cells.set("Y2", { t:"b", v:"", xf:9 });
-      if (!cells.has("Y3")) cells.set("Y3", { t:"b", v:"", xf:6 });
-      if (!cells.has("Y4")) cells.set("Y4", { t:"b", v:"", xf:8 });
-      if (!cells.has("Z2")) cells.set("Z2", { t:"b", v:"", xf:9 });
-      if (!cells.has("Z3")) cells.set("Z3", { t:"b", v:"", xf:6 });
-      if (!cells.has("Z4")) cells.set("Z4", { t:"b", v:"", xf:8 });
-
-
       const merges = [
         "A1:O1",
         "A2:A4","B2:B4","C2:C4","D2:D4","E2:E4","F2:F4","G2:G4","H2:H4",
@@ -977,9 +884,14 @@ function Summary({ forms, T }: any) {
         `<sheetView workbookViewId="0"><selection activeCell="A1"/></sheetView>` +
         `<sheetFormatPr defaultRowHeight="15"/>` +
         colsXml + `<sheetData>` + sheetDataXml + `</sheetData>` + mergesXml +
+        `<conditionalFormatting sqref="A2:AI4">` +
+          `<cfRule type="expression" dxfId="0" priority="1">` +
+            `<formula>TRUE</formula>` +
+          `</cfRule>` +
+        `</conditionalFormatting>` +
         `<conditionalFormatting sqref="A5:AI${lastDataRow}">` +
-          `<cfRule type="containsText" operator="containsText" text="" dxfId="0" priority="1">` +
-            `<formula>LEN(TRIM(A5))>=0</formula>` +
+          `<cfRule type="expression" dxfId="0" priority="2">` +
+            `<formula>TRUE</formula>` +
           `</cfRule>` +
         `</conditionalFormatting>` +
         `</worksheet>`;
