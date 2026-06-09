@@ -919,6 +919,16 @@ function Summary({ forms, T }: any) {
       const stylesXml =
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
         `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
+        // Custom number formats with unique IDs — forces Excel to treat each xf as unique
+        // All render as General but prevent style deduplication/reindexing on save
+        `<numFmts count="6">` +
+          `<numFmt numFmtId="164" formatCode="General"/>` +
+          `<numFmt numFmtId="165" formatCode="General"/>` +
+          `<numFmt numFmtId="166" formatCode="General"/>` +
+          `<numFmt numFmtId="167" formatCode="General"/>` +
+          `<numFmt numFmtId="168" formatCode="General"/>` +
+          `<numFmt numFmtId="169" formatCode="General"/>` +
+        `</numFmts>` +
         `<fonts count="5">` +
           `<font><sz val="11"/><name val="Calibri"/></font>` +
           `<font><b/><sz val="10"/><name val="Times New Roman"/></font>` +
@@ -934,19 +944,23 @@ function Summary({ forms, T }: any) {
         `<borders count="2">` +
           `<border><left/><right/><top/><bottom/><diagonal/></border>` +
           `<border>` +
-            `<left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right>` +
-            `<top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom>` +
+            `<left style="thin"><color auto="1"/></left>` +
+            `<right style="thin"><color auto="1"/></right>` +
+            `<top style="thin"><color auto="1"/></top>` +
+            `<bottom style="thin"><color auto="1"/></bottom>` +
             `<diagonal/>` +
           `</border>` +
         `</borders>` +
         `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
         `<cellXfs count="6">` +
-          `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
-          `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
-          `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
-          `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
-          `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
-          `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          // xf[0]=default, xf[1]=header, xf[2]=data, xf[3]=note1, xf[4]=note2, xf[5]=note3
+          // Each has a unique numFmtId (164-169) so Excel cannot deduplicate or reindex them
+          `<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
+          `<xf numFmtId="165" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
+          `<xf numFmtId="166" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
+          `<xf numFmtId="167" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
+          `<xf numFmtId="168" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          `<xf numFmtId="169" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
         `</cellXfs>` +
         `</styleSheet>`;
 
