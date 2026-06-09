@@ -741,13 +741,12 @@ function Summary({ forms, T }: any) {
       const xe = (s: string) => String(s)
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-      // Style index constants — exact xf indices from original template styles.xml
-      const XF_DATA        = 5;  // TNR12, thin border, center (data rows)
-      const XF_HEADER      = 20; // TNR10B, blue fill, thin border, center+wrap (anchors)
-      const XF_HEADER_LEAF = 8;  // TNR10B, blue fill, thin border (row 4 leaf headers)
-      const XF_MERGE_MID   = 21; // blue fill, L+R border only (non-anchor tall merges)
-      const XF_NOTE1       = 2;  // Calibri11B, vcenter (note rows)
-      const XF_NOTE2       = 1;  // Times Ext Roman italic (row 1)
+      // Style index constants
+      const XF_HEADER = 1;  // blue fill + full thin border + TNR10B center+wrap
+      const XF_DATA   = 2;  // TNR12 + full thin border + center
+      const XF_NOTE1  = 3;  // Calibri11B center+wrap
+      const XF_NOTE2  = 4;  // Times Ext Roman vcenter
+      const XF_NOTE3  = 5;  // Calibri11B vcenter
 
       type CellDef = { t: "s"|"n"|"f"|"b"; v: any; xf: number };
       const cells = new Map<string, CellDef>();
@@ -757,24 +756,7 @@ function Summary({ forms, T }: any) {
         cells.set(addr(c,r), { t:"n", v: v ?? "", xf });
       const setF = (c: number, r: number, formula: string, xf: number) =>
         cells.set(addr(c,r), { t:"f", v: formula, xf });
-      const XF_BORDER = 5;
-      // Stamp correct xf on every non-anchor cell in a merged region.
-      // Uses original template xf indices per cell position:
-      //   XF_MERGE_MID (21) = L+R border only  → middle/bottom rows of tall merges
-      //   XF_HEADER (20)    = full thin border  → non-anchor cells of wide row merges
-      const stampMergeBorders = (c1: number, r1: number, c2: number, r2: number, xfOverride?: number) => {
-        for (let r = r1; r <= r2; r++) {
-          for (let c = c1; c <= c2; c++) {
-            if (r === r1 && c === c1) continue;
-            if (!cells.has(addr(c, r))) {
-              // tall single-col merge: non-anchor rows get L+R only (XF_MERGE_MID)
-              // wide single-row merge: non-anchor cols get full border (XF_HEADER)
-              const xf = xfOverride ?? (c1 === c2 ? XF_MERGE_MID : XF_HEADER);
-              cells.set(addr(c, r), { t:"b", v: "", xf });
-            }
-          }
-        }
-      };
+
 
       // ROW 1
       setS(1, 1, "Please refer to notes in the heading cells G, AA & AB for clarification ", XF_NOTE2);
@@ -809,7 +791,7 @@ function Summary({ forms, T }: any) {
       setS(28, 3, "No. of individuals who accompany other human resources", XF_HEADER);
       // ROW 4
       ["No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF."]
-        .forEach((lbl, i) => setS(9 + i, 4, lbl, XF_HEADER_LEAF));
+        .forEach((lbl, i) => setS(9 + i, 4, lbl, XF_HEADER));
 
       // DATA ROWS
       const dataRowStart = 5;
@@ -847,8 +829,8 @@ function Summary({ forms, T }: any) {
       const lastDataRow = dataRowStart + displayForms.length - 1;
       const notesStart  = Math.max(lastDataRow + 2, dataRowStart + 11);
       setS(1, notesStart,     "G - Including those participating in the core activities, this represents the size of the local community that we are engaging, and should include, for example, those that attend Holy Day commemorations, parents of children and junior youth in educational activities, participants of periodic camps and festivals, those receiving home visits, those who are part of ongoing conversations, etc.", XF_NOTE1);
-      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE1);
-      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE1);
+      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE3);
+      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE3);
 
       // Build sheetData XML
       const rowMap = new Map<number, Array<[string, CellDef]>>();
@@ -878,21 +860,98 @@ function Summary({ forms, T }: any) {
 
       // Stamp borders on all non-anchor cells in every header merge
       // (skip A1:O1 — row 1 has no border per original template)
-      stampMergeBorders(1,2,1,4);   stampMergeBorders(2,2,2,4);   // A2:A4, B2:B4
-      stampMergeBorders(3,2,3,4);   stampMergeBorders(4,2,4,4);   // C2:C4, D2:D4
-      stampMergeBorders(5,2,5,4);   stampMergeBorders(6,2,6,4);   // E2:E4, F2:F4
-      stampMergeBorders(7,2,7,4);   stampMergeBorders(8,2,8,4);   // G2:G4, H2:H4
-      stampMergeBorders(9,2,23,2);  stampMergeBorders(24,2,28,2); // I2:W2, X2:AB2
-      stampMergeBorders(29,2,29,4); stampMergeBorders(30,2,30,4); // AC2:AC4, AD2:AD4
-      stampMergeBorders(31,2,31,4); stampMergeBorders(32,2,32,4); // AE2:AE4, AF2:AF4
-      stampMergeBorders(33,2,33,4); stampMergeBorders(34,2,34,4); // AG2:AG4, AH2:AH4
-      stampMergeBorders(35,2,35,4);                                // AI2:AI4
-      stampMergeBorders(9,3,11,3);  stampMergeBorders(12,3,14,3); // I3:K3, L3:N3
-      stampMergeBorders(15,3,17,3); stampMergeBorders(18,3,20,3); // O3:Q3, R3:T3
-      stampMergeBorders(21,3,23,3);                                // U3:W3
-      stampMergeBorders(24,3,24,4); stampMergeBorders(25,3,25,4); // X3:X4, Y3:Y4
-      stampMergeBorders(26,3,26,4); stampMergeBorders(27,3,27,4); // Z3:Z4, AA3:AA4
-      stampMergeBorders(28,3,28,4);                                // AB3:AB4
+      // Explicit per-cell border stamps for every non-anchor cell in each merge
+      if (!cells.has("A2")) cells.set("A2", { t:"b", v:"", xf:6 });
+      if (!cells.has("A3")) cells.set("A3", { t:"b", v:"", xf:7 });
+      if (!cells.has("A4")) cells.set("A4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AA2")) cells.set("AA2", { t:"b", v:"", xf:9 });
+      if (!cells.has("AA3")) cells.set("AA3", { t:"b", v:"", xf:6 });
+      if (!cells.has("AA4")) cells.set("AA4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AB2")) cells.set("AB2", { t:"b", v:"", xf:11 });
+      if (!cells.has("AB3")) cells.set("AB3", { t:"b", v:"", xf:6 });
+      if (!cells.has("AB4")) cells.set("AB4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AC2")) cells.set("AC2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AC3")) cells.set("AC3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AC4")) cells.set("AC4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AD2")) cells.set("AD2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AD3")) cells.set("AD3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AD4")) cells.set("AD4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AE2")) cells.set("AE2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AE3")) cells.set("AE3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AE4")) cells.set("AE4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AF2")) cells.set("AF2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AF3")) cells.set("AF3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AF4")) cells.set("AF4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AG2")) cells.set("AG2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AG3")) cells.set("AG3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AG4")) cells.set("AG4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AH2")) cells.set("AH2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AH3")) cells.set("AH3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AH4")) cells.set("AH4", { t:"b", v:"", xf:8 });
+      if (!cells.has("AI2")) cells.set("AI2", { t:"b", v:"", xf:6 });
+      if (!cells.has("AI3")) cells.set("AI3", { t:"b", v:"", xf:7 });
+      if (!cells.has("AI4")) cells.set("AI4", { t:"b", v:"", xf:8 });
+      if (!cells.has("B2")) cells.set("B2", { t:"b", v:"", xf:6 });
+      if (!cells.has("B3")) cells.set("B3", { t:"b", v:"", xf:7 });
+      if (!cells.has("B4")) cells.set("B4", { t:"b", v:"", xf:8 });
+      if (!cells.has("C2")) cells.set("C2", { t:"b", v:"", xf:6 });
+      if (!cells.has("C3")) cells.set("C3", { t:"b", v:"", xf:7 });
+      if (!cells.has("C4")) cells.set("C4", { t:"b", v:"", xf:8 });
+      if (!cells.has("D2")) cells.set("D2", { t:"b", v:"", xf:6 });
+      if (!cells.has("D3")) cells.set("D3", { t:"b", v:"", xf:7 });
+      if (!cells.has("D4")) cells.set("D4", { t:"b", v:"", xf:8 });
+      if (!cells.has("E2")) cells.set("E2", { t:"b", v:"", xf:6 });
+      if (!cells.has("E3")) cells.set("E3", { t:"b", v:"", xf:7 });
+      if (!cells.has("E4")) cells.set("E4", { t:"b", v:"", xf:8 });
+      if (!cells.has("F2")) cells.set("F2", { t:"b", v:"", xf:6 });
+      if (!cells.has("F3")) cells.set("F3", { t:"b", v:"", xf:7 });
+      if (!cells.has("F4")) cells.set("F4", { t:"b", v:"", xf:8 });
+      if (!cells.has("G2")) cells.set("G2", { t:"b", v:"", xf:6 });
+      if (!cells.has("G3")) cells.set("G3", { t:"b", v:"", xf:7 });
+      if (!cells.has("G4")) cells.set("G4", { t:"b", v:"", xf:8 });
+      if (!cells.has("H2")) cells.set("H2", { t:"b", v:"", xf:6 });
+      if (!cells.has("H3")) cells.set("H3", { t:"b", v:"", xf:7 });
+      if (!cells.has("H4")) cells.set("H4", { t:"b", v:"", xf:8 });
+      if (!cells.has("I2")) cells.set("I2", { t:"b", v:"", xf:10 });
+      if (!cells.has("I3")) cells.set("I3", { t:"b", v:"", xf:10 });
+      if (!cells.has("J2")) cells.set("J2", { t:"b", v:"", xf:9 });
+      if (!cells.has("J3")) cells.set("J3", { t:"b", v:"", xf:9 });
+      if (!cells.has("K2")) cells.set("K2", { t:"b", v:"", xf:9 });
+      if (!cells.has("K3")) cells.set("K3", { t:"b", v:"", xf:11 });
+      if (!cells.has("L2")) cells.set("L2", { t:"b", v:"", xf:9 });
+      if (!cells.has("L3")) cells.set("L3", { t:"b", v:"", xf:10 });
+      if (!cells.has("M2")) cells.set("M2", { t:"b", v:"", xf:9 });
+      if (!cells.has("M3")) cells.set("M3", { t:"b", v:"", xf:9 });
+      if (!cells.has("N2")) cells.set("N2", { t:"b", v:"", xf:9 });
+      if (!cells.has("N3")) cells.set("N3", { t:"b", v:"", xf:11 });
+      if (!cells.has("O2")) cells.set("O2", { t:"b", v:"", xf:9 });
+      if (!cells.has("O3")) cells.set("O3", { t:"b", v:"", xf:10 });
+      if (!cells.has("P2")) cells.set("P2", { t:"b", v:"", xf:9 });
+      if (!cells.has("P3")) cells.set("P3", { t:"b", v:"", xf:9 });
+      if (!cells.has("Q2")) cells.set("Q2", { t:"b", v:"", xf:9 });
+      if (!cells.has("Q3")) cells.set("Q3", { t:"b", v:"", xf:11 });
+      if (!cells.has("R2")) cells.set("R2", { t:"b", v:"", xf:9 });
+      if (!cells.has("R3")) cells.set("R3", { t:"b", v:"", xf:10 });
+      if (!cells.has("S2")) cells.set("S2", { t:"b", v:"", xf:9 });
+      if (!cells.has("S3")) cells.set("S3", { t:"b", v:"", xf:9 });
+      if (!cells.has("T2")) cells.set("T2", { t:"b", v:"", xf:9 });
+      if (!cells.has("T3")) cells.set("T3", { t:"b", v:"", xf:11 });
+      if (!cells.has("U2")) cells.set("U2", { t:"b", v:"", xf:9 });
+      if (!cells.has("U3")) cells.set("U3", { t:"b", v:"", xf:10 });
+      if (!cells.has("V2")) cells.set("V2", { t:"b", v:"", xf:9 });
+      if (!cells.has("V3")) cells.set("V3", { t:"b", v:"", xf:9 });
+      if (!cells.has("W2")) cells.set("W2", { t:"b", v:"", xf:11 });
+      if (!cells.has("W3")) cells.set("W3", { t:"b", v:"", xf:11 });
+      if (!cells.has("X2")) cells.set("X2", { t:"b", v:"", xf:10 });
+      if (!cells.has("X3")) cells.set("X3", { t:"b", v:"", xf:6 });
+      if (!cells.has("X4")) cells.set("X4", { t:"b", v:"", xf:8 });
+      if (!cells.has("Y2")) cells.set("Y2", { t:"b", v:"", xf:9 });
+      if (!cells.has("Y3")) cells.set("Y3", { t:"b", v:"", xf:6 });
+      if (!cells.has("Y4")) cells.set("Y4", { t:"b", v:"", xf:8 });
+      if (!cells.has("Z2")) cells.set("Z2", { t:"b", v:"", xf:9 });
+      if (!cells.has("Z3")) cells.set("Z3", { t:"b", v:"", xf:6 });
+      if (!cells.has("Z4")) cells.set("Z4", { t:"b", v:"", xf:8 });
+
 
       const merges = [
         "A1:O1",
@@ -924,7 +983,47 @@ function Summary({ forms, T }: any) {
       // fills: 0=none, 1=gray125(required), 2=solid BDD7EE
       // borders: 0=none, 1=thin all
       // xfs: 0=default, 1=header, 2=data, 3=note1centered, 4=note2plain
-      const stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="9"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><i/><sz val="11"/><color theme="1"/><name val="Times Ext Roman"/><family val="1"/></font><font><b/><sz val="11"/><color rgb="FF000000"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><sz val="12"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><sz val="12"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="12"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="10"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="10"/><name val="Times New Roman"/><family val="1"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor theme="8" tint="0.59999389629810485"/><bgColor rgb="FFBDD6EE"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor theme="8" tint="0.59999389629810485"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="8"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom><diagonal/></border><border><left style="thin"><color auto="1"/></left><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left/><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom/><diagonal/></border><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top/><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="24"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="6" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="7" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="7" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="3" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1"/></xf><xf numFmtId="3" fontId="7" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/><tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleLight16"/></styleSheet>';
+      const stylesXml =
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+        `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
+        `<fonts count="5">` +
+          `<font><sz val="11"/><name val="Calibri"/></font>` +
+          `<font><b/><sz val="10"/><name val="Times New Roman"/></font>` +
+          `<font><sz val="12"/><name val="Times New Roman"/></font>` +
+          `<font><b/><sz val="11"/><name val="Calibri"/></font>` +
+          `<font><sz val="11"/><name val="Times Ext Roman"/></font>` +
+        `</fonts>` +
+        `<fills count="3">` +
+          `<fill><patternFill patternType="none"/></fill>` +
+          `<fill><patternFill patternType="gray125"/></fill>` +
+          `<fill><patternFill patternType="solid"><fgColor rgb="FFBDD7EE"/></patternFill></fill>` +
+        `</fills>` +
+        `<borders count="8">` +
+          `<border><left/><right/><top/><bottom/><diagonal/></border>` +
+          `<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>` +
+          `<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom/><diagonal/></border>` +
+          `<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top/><bottom/><diagonal/></border>` +
+          `<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top/><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>` +
+          `<border><left/><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>` +
+          `<border><left style="thin"><color auto="1"/></left><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>` +
+          `<border><left/><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>` +
+        `</borders>` +
+        `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
+        `<cellXfs count="12">` +
+          `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
+          `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
+          `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
+          `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          `<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="3" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+          `<xf numFmtId="0" fontId="1" fillId="2" borderId="7" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
+        `</cellXfs>` +
+        `</styleSheet>`;
 
       const ssXml =
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
