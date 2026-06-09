@@ -977,6 +977,11 @@ function Summary({ forms, T }: any) {
         `<sheetView workbookViewId="0"><selection activeCell="A1"/></sheetView>` +
         `<sheetFormatPr defaultRowHeight="15"/>` +
         colsXml + `<sheetData>` + sheetDataXml + `</sheetData>` + mergesXml +
+        `<conditionalFormatting sqref="A5:AI${lastDataRow}">` +
+          `<cfRule type="containsText" operator="containsText" text="" dxfId="0" priority="1">` +
+            `<formula>LEN(TRIM(A5))>=0</formula>` +
+          `</cfRule>` +
+        `</conditionalFormatting>` +
         `</worksheet>`;
 
       // fonts: 0=default, 1=TNR10B(header), 2=TNR12(data), 3=Calibri11B(note1), 4=TimesExtRoman11(note2)
@@ -1023,6 +1028,16 @@ function Summary({ forms, T }: any) {
           `<xf numFmtId="0" fontId="1" fillId="2" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
           `<xf numFmtId="0" fontId="1" fillId="2" borderId="7" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>` +
         `</cellXfs>` +
+        `<dxfs count="1">` +
+          `<dxf>` +
+            `<border>` +
+              `<left style="thin"><color auto="1"/></left>` +
+              `<right style="thin"><color auto="1"/></right>` +
+              `<top style="thin"><color auto="1"/></top>` +
+              `<bottom style="thin"><color auto="1"/></bottom>` +
+            `</border>` +
+          `</dxf>` +
+        `</dxfs>` +
         `</styleSheet>`;
 
       const ssXml =
