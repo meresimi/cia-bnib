@@ -741,12 +741,13 @@ function Summary({ forms, T }: any) {
       const xe = (s: string) => String(s)
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-      // Style index constants (matching cellXfs in styles.xml)
-      const XF_HEADER = 1;
-      const XF_DATA   = 2;
-      const XF_NOTE1  = 3;
-      const XF_NOTE2  = 4;
-      const XF_NOTE3  = 5;
+      // Style index constants — exact xf indices from original template styles.xml
+      const XF_DATA        = 5;  // TNR12, thin border, center (data rows)
+      const XF_HEADER      = 20; // TNR10B, blue fill, thin border, center+wrap (anchors)
+      const XF_HEADER_LEAF = 8;  // TNR10B, blue fill, thin border (row 4 leaf headers)
+      const XF_MERGE_MID   = 21; // blue fill, L+R border only (non-anchor tall merges)
+      const XF_NOTE1       = 2;  // Calibri11B, vcenter (note rows)
+      const XF_NOTE2       = 1;  // Times Ext Roman italic (row 1)
 
       type CellDef = { t: "s"|"n"|"f"|"b"; v: any; xf: number };
       const cells = new Map<string, CellDef>();
@@ -756,14 +757,21 @@ function Summary({ forms, T }: any) {
         cells.set(addr(c,r), { t:"n", v: v ?? "", xf });
       const setF = (c: number, r: number, formula: string, xf: number) =>
         cells.set(addr(c,r), { t:"f", v: formula, xf });
-      // Stamp thin border on every non-anchor cell in a merged region
-      const XF_BORDER = 2; // reuse XF_DATA: borderId=1, no fill, center align
-      const stampMergeBorders = (c1: number, r1: number, c2: number, r2: number) => {
+      const XF_BORDER = 5;
+      // Stamp correct xf on every non-anchor cell in a merged region.
+      // Uses original template xf indices per cell position:
+      //   XF_MERGE_MID (21) = L+R border only  → middle/bottom rows of tall merges
+      //   XF_HEADER (20)    = full thin border  → non-anchor cells of wide row merges
+      const stampMergeBorders = (c1: number, r1: number, c2: number, r2: number, xfOverride?: number) => {
         for (let r = r1; r <= r2; r++) {
           for (let c = c1; c <= c2; c++) {
-            if (r === r1 && c === c1) continue; // anchor already has XF_HEADER border
-            if (!cells.has(addr(c, r)))
-              cells.set(addr(c, r), { t:"b", v: "", xf: XF_BORDER });
+            if (r === r1 && c === c1) continue;
+            if (!cells.has(addr(c, r))) {
+              // tall single-col merge: non-anchor rows get L+R only (XF_MERGE_MID)
+              // wide single-row merge: non-anchor cols get full border (XF_HEADER)
+              const xf = xfOverride ?? (c1 === c2 ? XF_MERGE_MID : XF_HEADER);
+              cells.set(addr(c, r), { t:"b", v: "", xf });
+            }
           }
         }
       };
@@ -801,7 +809,7 @@ function Summary({ forms, T }: any) {
       setS(28, 3, "No. of individuals who accompany other human resources", XF_HEADER);
       // ROW 4
       ["No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF.","No.","Att.","FoF."]
-        .forEach((lbl, i) => setS(9 + i, 4, lbl, XF_HEADER));
+        .forEach((lbl, i) => setS(9 + i, 4, lbl, XF_HEADER_LEAF));
 
       // DATA ROWS
       const dataRowStart = 5;
@@ -839,8 +847,8 @@ function Summary({ forms, T }: any) {
       const lastDataRow = dataRowStart + displayForms.length - 1;
       const notesStart  = Math.max(lastDataRow + 2, dataRowStart + 11);
       setS(1, notesStart,     "G - Including those participating in the core activities, this represents the size of the local community that we are engaging, and should include, for example, those that attend Holy Day commemorations, parents of children and junior youth in educational activities, participants of periodic camps and festivals, those receiving home visits, those who are part of ongoing conversations, etc.", XF_NOTE1);
-      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE3);
-      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE3);
+      setS(1, notesStart + 3, "AA - This represents teachers of children's classes, junior youth animators, tutors, hosts of devotionals, those conducting home visits, those participating in direct teaching efforts, etc.", XF_NOTE1);
+      setS(1, notesStart + 5, "AB - This represents coordinators, assistants to Auxiliary Board members, collaborators, informal network of friends supporting the activities, etc.", XF_NOTE1);
 
       // Build sheetData XML
       const rowMap = new Map<number, Array<[string, CellDef]>>();
@@ -916,53 +924,7 @@ function Summary({ forms, T }: any) {
       // fills: 0=none, 1=gray125(required), 2=solid BDD7EE
       // borders: 0=none, 1=thin all
       // xfs: 0=default, 1=header, 2=data, 3=note1centered, 4=note2plain
-      const stylesXml =
-        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-        // Custom number formats with unique IDs — forces Excel to treat each xf as unique
-        // All render as General but prevent style deduplication/reindexing on save
-        `<numFmts count="6">` +
-          `<numFmt numFmtId="164" formatCode="General"/>` +
-          `<numFmt numFmtId="165" formatCode="General"/>` +
-          `<numFmt numFmtId="166" formatCode="General"/>` +
-          `<numFmt numFmtId="167" formatCode="General"/>` +
-          `<numFmt numFmtId="168" formatCode="General"/>` +
-          `<numFmt numFmtId="169" formatCode="General"/>` +
-        `</numFmts>` +
-        `<fonts count="5">` +
-          `<font><sz val="11"/><name val="Calibri"/></font>` +
-          `<font><b/><sz val="10"/><name val="Times New Roman"/></font>` +
-          `<font><sz val="12"/><name val="Times New Roman"/></font>` +
-          `<font><b/><sz val="11"/><name val="Calibri"/></font>` +
-          `<font><sz val="11"/><name val="Times Ext Roman"/></font>` +
-        `</fonts>` +
-        `<fills count="3">` +
-          `<fill><patternFill patternType="none"/></fill>` +
-          `<fill><patternFill patternType="gray125"/></fill>` +
-          `<fill><patternFill patternType="solid"><fgColor rgb="FFBDD7EE"/></patternFill></fill>` +
-        `</fills>` +
-        `<borders count="2">` +
-          `<border><left/><right/><top/><bottom/><diagonal/></border>` +
-          `<border>` +
-            `<left style="thin"><color auto="1"/></left>` +
-            `<right style="thin"><color auto="1"/></right>` +
-            `<top style="thin"><color auto="1"/></top>` +
-            `<bottom style="thin"><color auto="1"/></bottom>` +
-            `<diagonal/>` +
-          `</border>` +
-        `</borders>` +
-        `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="6">` +
-          // xf[0]=default, xf[1]=header, xf[2]=data, xf[3]=note1, xf[4]=note2, xf[5]=note3
-          // Each has a unique numFmtId (164-169) so Excel cannot deduplicate or reindex them
-          `<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
-          `<xf numFmtId="165" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
-          `<xf numFmtId="166" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>` +
-          `<xf numFmtId="167" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>` +
-          `<xf numFmtId="168" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
-          `<xf numFmtId="169" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>` +
-        `</cellXfs>` +
-        `</styleSheet>`;
+      const stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="9"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><i/><sz val="11"/><color theme="1"/><name val="Times Ext Roman"/><family val="1"/></font><font><b/><sz val="11"/><color rgb="FF000000"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><sz val="12"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font><font><sz val="12"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="12"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="10"/><color theme="1"/><name val="Times New Roman"/><family val="1"/></font><font><b/><sz val="10"/><name val="Times New Roman"/><family val="1"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor theme="8" tint="0.59999389629810485"/><bgColor rgb="FFBDD6EE"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor theme="8" tint="0.59999389629810485"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="8"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom><diagonal/></border><border><left style="thin"><color auto="1"/></left><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left/><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom/><diagonal/></border><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top/><bottom style="thin"><color auto="1"/></bottom><diagonal/></border><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="24"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="6" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="7" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="7" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="3" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="5" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="6" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="7" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1"/></xf><xf numFmtId="3" fontId="7" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="8" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/><tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleLight16"/></styleSheet>';
 
       const ssXml =
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
