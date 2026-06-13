@@ -872,11 +872,13 @@ function Summary({ forms, T }: any) {
       const mergesXml = `<mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join("")}</mergeCells>`;
 
       const COL_WIDTHS = [
-        9.68359375,12.375,15.73828125,10.76171875,10.89453125,13.1796875,
-        13,13,6.1875,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
-        10.76171875,13,13,13,13,13,10.89453125,9.953125,13,9.953125,13,17.75390625,
+        9.71,12.375,15.73828125,10.76171875,13.29,13.29,13.29,13.29,
+        8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14,
+        13.71,13.71,13.71,13.71,13.71,13.71,13.71,13.71,13.71,13.71,13.71,18.14,
       ];
-      const colsXml = `<cols>${COL_WIDTHS.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1" bestFit="0"/>`).join("")}</cols>`;
+      // bestFit="1" allows the column to auto-expand when cell content
+      // exceeds the default width, while customWidth="1" locks the minimum.
+      const colsXml = `<cols>${COL_WIDTHS.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1" bestFit="1"/>`).join("")}</cols>`;
 
       const sheetXml =
         `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
